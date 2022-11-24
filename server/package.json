@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@fastify/rate-limit": "^7.5.0",
 		"dotenv": "^16.0.3",
 		"fastify": "^4.6.0",
 		"redis": "^4.3.1",
