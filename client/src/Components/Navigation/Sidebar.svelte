@@ -3,7 +3,7 @@
 </script>
 
 <nav class="flex flex-col text-right">
-	<span class="mb-[0.65em]">
+	<span class="mb-[0.55em]">
 		<Button label="settings" on:navigationClick />
 	</span>
 	<span>

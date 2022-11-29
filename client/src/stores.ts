@@ -5,7 +5,7 @@ import { Game } from "../wasm/pkg/wasm";
 
 await init();
 
-export const game = writable<Game>(Game.new());
+export const game = writable<Game>(Game.new(5, 5));
 
 interface GlobalValues {
 	gameActive: boolean;

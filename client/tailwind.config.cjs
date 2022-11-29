@@ -8,7 +8,7 @@ const config = {
 				black: "#050505",
 				red: "#F50400",
 				blue: "#2892D7",
-				grey: "#E9E9E9",
+				grey: "#EDEDED",
 			},
 		},
 		fontFamily: {
