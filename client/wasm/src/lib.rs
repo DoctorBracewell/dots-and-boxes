@@ -1,3 +1,3 @@
-mod game;
+pub mod game;
 
 use game::*;

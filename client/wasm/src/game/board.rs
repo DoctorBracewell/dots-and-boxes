@@ -1,5 +1,7 @@
 use wasm_bindgen::prelude::*;
+use web_sys::console;
 
+#[wasm_bindgen]
 #[derive(Debug, Clone, Copy)]
 pub enum Player {
     User,
@@ -9,17 +11,19 @@ pub enum Player {
 pub type Claimed = Option<Player>;
 
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct GameBox {
-    claimed: Claimed,
-    edges: [Claimed; 4],
+    pub claimed: Claimed,
+    vertical_edges: [usize; 2],
+    horizontal_edges: [usize; 2],
 }
 
 impl GameBox {
-    pub fn new() -> Self {
+    pub fn new(horizontal_edges: [usize; 2], vertical_edges: [usize; 2]) -> Self {
         Self {
             claimed: None,
-            edges: [None, None, None, None],
+            vertical_edges,
+            horizontal_edges,
         }
     }
 
@@ -27,7 +31,27 @@ impl GameBox {
         self.claimed = Some(player);
     }
 
-    pub fn set_edge(&mut self, edge: usize, claimed: Claimed) {
-        self.edges[edge] = claimed;
+    pub fn determine_claim(
+        &mut self,
+        player: Player,
+        vertical_edges: &Vec<Claimed>,
+        horizontal_edges: &Vec<Claimed>,
+    ) -> bool {
+        let all_vertical_edges_claimed = self
+            .vertical_edges
+            .iter()
+            .all(|index| vertical_edges[*index].is_some());
+
+        let all_horizontal_edges_claimed = self
+            .horizontal_edges
+            .iter()
+            .all(|index| horizontal_edges[*index].is_some());
+
+        if all_vertical_edges_claimed && all_horizontal_edges_claimed {
+            self.claim(player);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

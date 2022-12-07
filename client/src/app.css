@@ -31,7 +31,7 @@
 		right: -5%;
 		height: 0.5em;
 		width: 110%;
-		background-image: url("assets/imgs/underline.png");
+		background-image: url("assets/imgs/underline/small.svg");
 		background-size: 110% 0.5em;
 		background-position-y: 110%;
 		background-position-x: -0.4em;
@@ -86,7 +86,7 @@
 		bottom: -50%;
 		width: 120%;
 		height: 1em;
-		background-image: url("assets/imgs/underline.svg");
+		background-image: url("assets/imgs/underline/large.svg");
 		background-size: 100% 1em;
 		background-repeat: no-repeat;
 		z-index: -2;
