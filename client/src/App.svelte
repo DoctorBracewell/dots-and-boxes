@@ -1,11 +1,7 @@
 <script lang="ts">
-	import Game from "./Components/Game.svelte";
-
-	import init from "../wasm/pkg/wasm";
+	import Layout from "./Components/Layout.svelte";
 </script>
 
-<div class="w-full flex-1 flex text-neutral-100 font-body text-block">
-	{#await init() then}
-		<Game />
-	{/await}
-</div>
+<main class="w-screen h-screen flex-1 flex font-body bg-white">
+	<Layout />
+</main>

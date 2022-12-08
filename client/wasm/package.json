@@ -1,0 +1,7 @@
+{
+	"type": "module",
+	"scripts": {
+		"build": "wasm-pack build --target web",
+		"postbuild": "node update_package_json.js"
+	}
+}

@@ -1,6 +1,5 @@
-use wasm_bindgen::prelude::*;
+pub mod game;
+mod utils;
 
-#[wasm_bindgen]
-pub fn main_func() -> String {
-    return "Hello!".to_string();
-}
+use game::*;
+use utils::*;

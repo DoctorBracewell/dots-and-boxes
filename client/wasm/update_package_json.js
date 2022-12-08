@@ -1,5 +1,5 @@
-const { writeFile } = require("fs/promises");
-const packageJson = require("./pkg/package.json");
+import { writeFile } from "fs/promises";
+import packageJson from "./pkg/package.json" assert { type: "json" };
 
 packageJson.main = packageJson.module;
 

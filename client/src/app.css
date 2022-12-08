@@ -9,6 +9,14 @@
 	src: url("assets/fonts/virgil.woff2") format("woff2");
 }
 
+:root {
+	--white: theme("colors.white");
+	--black: theme("colors.black");
+	--red: theme("colors.red");
+	--blue: theme("colors.blue");
+	--grey: theme("colors.grey");
+}
+
 @layer components {
 	/* https://nerdcowboy.com/blog/sliding-underlined-links/ */
 	.sliding-underline {
@@ -19,33 +27,73 @@
 	.sliding-underline::before {
 		content: "";
 		position: absolute;
-		bottom: -20%;
-		right: 0;
+		bottom: -10%;
+		right: -5%;
 		height: 0.5em;
-		width: 100%;
-		background-image: url("assets/imgs/underline.png");
-		background-size: 110% 0.6em;
-		background-position-y: 120%;
+		width: 110%;
+		background-image: url("assets/imgs/underline/small.svg");
+		background-size: 110% 0.5em;
+		background-position-y: 110%;
 		background-position-x: -0.4em;
 		background-repeat: no-repeat;
 		z-index: -2;
 	}
 
 	.sliding-underline::after {
+		@apply bg-white;
 		content: "";
 		position: absolute;
-		bottom: -20%;
-		right: 0;
-		height: 0.6em;
+		bottom: -10%;
+		right: -5%;
+		height: 0.5em;
 		width: 110%;
-		background-color: white;
 		z-index: -1;
 		transition: width 0.2s ease-in-out;
 	}
 
-	.sliding-underline:hover::after,
-	.sliding-underline:focus::after,
-	.sliding-underline:active::after {
+	.sliding-underline:hover::after {
 		width: 0%;
+	}
+
+	.bg-paper {
+		position: relative;
+		background: repeating-linear-gradient(
+			var(--white),
+			var(--white) 2em,
+			var(--grey) 2em,
+			var(--grey) 2.05em
+		);
+	}
+
+	.bg-paper::after {
+		content: "";
+		position: absolute;
+		width: 0.1em;
+		height: 100%;
+		background: var(--red);
+		left: 6em;
+	}
+
+	.title {
+		@apply relative z-10;
+		text-decoration: none;
+	}
+
+	.title::before {
+		content: "";
+		position: absolute;
+		left: -10%;
+		bottom: -50%;
+		width: 120%;
+		height: 1em;
+		background-image: url("assets/imgs/underline/large.svg");
+		background-size: 100% 1em;
+		background-repeat: no-repeat;
+		z-index: -2;
+	}
+
+	.box {
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
 	}
 }
