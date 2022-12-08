@@ -2,7 +2,8 @@
 	import { game } from "../../stores";
 
 	export let average: number;
-	export let [x, y]: [number, number] = [0, 0];
+	export let x: number;
+	export let y: number;
 
 	let claimed, showBackground, backgroundColour;
 
@@ -29,9 +30,10 @@
 			`background-image: url('assets/imgs/game/background/${backgroundColour}.svg')`}
 		"
 	>
-		<span class="m-auto">
-			<!-- {who ? "Me" : "You"} -->
-			{x},{y}
-		</span>
+		{#if showBackground}
+			<span class="m-auto">
+				{backgroundColour === "blue" ? "D" : "T"}
+			</span>
+		{/if}
 	</div>
 </div>

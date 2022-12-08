@@ -28,8 +28,7 @@
 		updateBoxes = !updateBoxes;
 	};
 
-	// $game.claim_edge(3, 1);
-	// $game.print_b();
+	// $game.print_board();
 </script>
 
 <main class="w-full h-full bg-transparent relative flex">

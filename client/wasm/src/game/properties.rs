@@ -14,3 +14,12 @@ pub enum LineType {
     Horizontal,
     Vertical,
 }
+
+pub enum EdgeType {
+    HorizontalNear,
+    HorizontalFar,
+    VerticalNear,
+    VerticalFar,
+    HorizontalShared,
+    VerticalShared,
+}

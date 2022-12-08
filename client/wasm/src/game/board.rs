@@ -1,5 +1,5 @@
+use crate::utils::log;
 use wasm_bindgen::prelude::*;
-use web_sys::console;
 
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy)]
@@ -33,7 +33,6 @@ impl GameBox {
 
     pub fn determine_claim(
         &mut self,
-        player: Player,
         vertical_edges: &Vec<Claimed>,
         horizontal_edges: &Vec<Claimed>,
     ) -> bool {
@@ -42,16 +41,15 @@ impl GameBox {
             .iter()
             .all(|index| vertical_edges[*index].is_some());
 
+        log(&all_vertical_edges_claimed);
+
         let all_horizontal_edges_claimed = self
             .horizontal_edges
             .iter()
             .all(|index| horizontal_edges[*index].is_some());
 
-        if all_vertical_edges_claimed && all_horizontal_edges_claimed {
-            self.claim(player);
-            return true;
-        } else {
-            return false;
-        }
+        log(&all_horizontal_edges_claimed);
+
+        all_vertical_edges_claimed && all_horizontal_edges_claimed
     }
 }

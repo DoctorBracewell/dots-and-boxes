@@ -2,10 +2,12 @@ mod board;
 mod properties;
 
 use board::*;
-use properties::*;
+use properties::{EdgeType::*, *};
 
 use wasm_bindgen::prelude::*;
 use web_sys::console;
+
+use crate::utils::log;
 
 #[wasm_bindgen]
 pub struct Game {
@@ -87,31 +89,46 @@ impl Game {
         }
 
         // Create a vector of the boxes to check (the ones that have been affected by the edge)
-        let mut game_boxes = if self.index_is_edge(index, &line_type) {
-            match line_type {
-                LineType::Horizontal => {
-                    vec![&mut self.board[(index / (self.height)) - 1][index % self.width]]
-                }
-                LineType::Vertical => {
-                    // Check if the box should be claimed
-                    vec![]
-                }
-            }
-        } else {
-            vec![]
+        let game_box_indices = match self.edge_type(index, &line_type) {
+            HorizontalNear => vec![(0, index % self.width)],
+            HorizontalFar => vec![(4, index % self.width)],
+            VerticalNear => vec![(index / self.width, 0)],
+            VerticalFar => vec![((index / (self.width)) - 1, 4)],
+            HorizontalShared => vec![
+                (index / self.width, index % self.width),
+                (index / self.width - 1, index % self.width),
+            ],
+            VerticalShared => vec![
+                (index / (self.width + 1), index % (self.width + 1)),
+                (index / (self.width + 1), index % (self.width + 1) - 1),
+            ],
         };
 
-        let mut box_claimed = false;
+        self.claim_boxes(game_box_indices);
+    }
 
-        for game_box in game_boxes.iter_mut() {
-            box_claimed = game_box.determine_claim(
-                self.current_player,
-                &self.vertical_edges,
-                &self.horizontal_edges,
-            );
+    fn claim_boxes(&mut self, game_box_indices: Vec<(usize, usize)>) {
+        let mut any_box_claimed = false;
+
+        for (y, x) in game_box_indices.iter() {
+            let game_box = &mut self.board[*y][*x];
+
+            if game_box.claimed.is_some() {
+                continue;
+            }
+
+            let should_claim =
+                game_box.determine_claim(&self.vertical_edges, &self.horizontal_edges);
+
+            // log(&should_claim);
+
+            if should_claim {
+                game_box.claim(self.current_player);
+                any_box_claimed = true;
+            }
         }
 
-        if !box_claimed {
+        if !any_box_claimed {
             self.switch_player();
         }
     }
@@ -127,11 +144,25 @@ impl Game {
         self.board[y][x].claimed
     }
 
-    fn index_is_edge(&self, index: usize, line_type: &LineType) -> bool {
+    fn edge_type(&self, index: usize, line_type: &LineType) -> EdgeType {
         match line_type {
-            LineType::Horizontal => index < self.width || index >= self.width * self.height,
+            LineType::Horizontal => {
+                if index < self.width {
+                    HorizontalNear
+                } else if index >= self.width * self.height {
+                    HorizontalFar
+                } else {
+                    HorizontalShared
+                }
+            }
             LineType::Vertical => {
-                index % (self.width + 1) == 0 || index % (self.width + 1) == self.width
+                if index % (self.width + 1) == 0 {
+                    VerticalNear
+                } else if index % (self.width + 1) == self.width {
+                    VerticalFar
+                } else {
+                    VerticalShared
+                }
             }
         }
     }
