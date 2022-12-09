@@ -1,9 +1,9 @@
 <div align="center">
   <h1 align="center"><a href="https://brace.dev/dots-and-boxes">Dots & Boxes</a></h1>
   <p>
-    <img alt="Github license" src="https://img.shields.io/github/license/DoctorBracewell/dots-and-boxes?style=for-the-badge">
-    <img alt="Github release" src="https://img.shields.io/github/v/release/DoctorBracewell/dots-and-boxes?style=for-the-badge" />
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/DoctorBracewell/dots-and-boxes?style=for-the-badge">
+    <img alt="Github license" src="https://img.shields.io/badge/license-Apache 2.0-green?style=for-the-badge">
+    <!-- <img alt="Github release" src="https://img.shields.io/github/v/release/DoctorBracewell/dots-and-boxes?style=for-the-badge" />
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/DoctorBracewell/dots-and-boxes?style=for-the-badge"> -->
   </p>
 </div>
 
