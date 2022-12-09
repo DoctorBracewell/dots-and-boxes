@@ -12,8 +12,14 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
+      - name: Compile
+        run: |
+          cd client/wasm/
+          npm run build
+
       - name: Install and Build 🔧
         run: |
+          cd client
           npm ci
           npm run build
 
