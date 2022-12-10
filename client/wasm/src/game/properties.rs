@@ -9,7 +9,7 @@ pub enum Difficulty {
 }
 
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum LineType {
     Horizontal,
     Vertical,

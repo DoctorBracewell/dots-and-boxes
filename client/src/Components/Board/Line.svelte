@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { lineType, mapEnum, player } from "../../enums";
+	import { lineType, mapEnum } from "../../enums";
 	import type { LineType } from "../../enums";
-	import { createEventDispatcher } from "svelte";
+	import { game, updatedBoxes } from "../../stores";
 
-	import { game } from "../../stores";
+	import chunk from "lodash/chunk";
 
 	export let average: number;
 	export let line: LineType;
@@ -12,8 +12,6 @@
 	let claimed = false;
 	let lineColour = "hover";
 
-	const dispatch = createEventDispatcher();
-
 	$: if (claimed) {
 		lineColour = $game.get_edge(index, mapEnum(lineType, line))
 			? "red"
@@ -21,11 +19,17 @@
 	}
 
 	const handleClick = () => {
-		if (claimed) return;
+		const affected_boxes = $game.interact_edge(index, mapEnum(lineType, line));
 
-		$game.claim_edge(index, mapEnum(lineType, line));
+		const chunked_affected_boxes: number[][] = chunk(affected_boxes, 2).filter(
+			([y, x]) => $game.get_box(x, y) !== undefined
+		);
+
+		for (const box of chunked_affected_boxes) {
+			$updatedBoxes = [...$updatedBoxes, box];
+		}
+
 		claimed = true;
-		dispatch("edgeclick");
 	};
 </script>
 

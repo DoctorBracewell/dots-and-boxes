@@ -17,6 +17,12 @@
 	--grey: theme("colors.grey");
 }
 
+body,
+html {
+	margin: 0;
+	padding: 0;
+}
+
 @layer components {
 	/* https://nerdcowboy.com/blog/sliding-underlined-links/ */
 	.sliding-underline {
@@ -59,9 +65,9 @@
 		position: relative;
 		background: repeating-linear-gradient(
 			var(--white),
-			var(--white) 2em,
-			var(--grey) 2em,
-			var(--grey) 2.05em
+			var(--white) 2rem,
+			var(--grey) 2rem,
+			var(--grey) 2.05rem
 		);
 	}
 

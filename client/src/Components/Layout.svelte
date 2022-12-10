@@ -11,10 +11,12 @@
 	<div class="absolute right-[2.4em] top-[2.4em]">
 		<Navigation on:navigationClick={handleNavigationClick} />
 	</div>
-	<div class="relative m-auto flex flex-col">
+	<div class="m-auto flex flex-col relative h-full justify-center">
 		<div class="w-full flex">
-			<h1 class="text-3xl m-auto title mb-10 w-fit">Dots & Boxes</h1>
+			<h1 class="text-3xl m-auto title w-fit">Dots & Boxes</h1>
 		</div>
-		<Game />
+		<div class="w-full flex mt-3">
+			<Game />
+		</div>
 	</div>
 </div>

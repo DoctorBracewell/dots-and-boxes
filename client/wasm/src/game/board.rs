@@ -1,8 +1,7 @@
-use crate::utils::log;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Player {
     User,
     Computer,
@@ -41,14 +40,10 @@ impl GameBox {
             .iter()
             .all(|index| vertical_edges[*index].is_some());
 
-        log(&all_vertical_edges_claimed);
-
         let all_horizontal_edges_claimed = self
             .horizontal_edges
             .iter()
             .all(|index| horizontal_edges[*index].is_some());
-
-        log(&all_horizontal_edges_claimed);
 
         all_vertical_edges_claimed && all_horizontal_edges_claimed
     }
