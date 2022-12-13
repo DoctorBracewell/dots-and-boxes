@@ -1,16 +1,24 @@
 <script lang="ts">
+	// Component Imports
 	import Box from "./Box.svelte";
 	import Line from "./Line.svelte";
 	import Dot from "./Dot.svelte";
-
-	import { difficulty, lineType, mapEnum } from "../../enums";
-	import { game, updatedBoxes } from "../../stores";
-	import { range } from "../../utils";
-
-	import chunk from "lodash/chunk";
 	import Score from "./Score.svelte";
 
-	let width, height, average, horizontalEdges, verticalEdges;
+	// Local Imports
+	import { difficulty, lineType, mapEnum } from "../../enums";
+	import { game, affectedBoxes } from "../../stores";
+	import { range } from "../../utils";
+
+	// Module Imports
+	import chunk from "lodash/chunk";
+
+	// Local Variables
+	let width: number,
+		height: number,
+		average: number,
+		horizontalEdges: number,
+		verticalEdges: number;
 
 	$: {
 		width = $game.width;
@@ -28,7 +36,7 @@
 </script>
 
 <main class="w-full h-full bg-transparent relative flex flex-col select-none">
-	{#key $updatedBoxes}
+	{#key $affectedBoxes}
 		<div class="score mx-auto mb-5">
 			<Score />
 		</div>

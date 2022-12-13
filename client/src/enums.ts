@@ -1,3 +1,4 @@
+// Enum Objects
 export const difficulty = {
 	EASY: "easy",
 	MEDIUM: "medium",
@@ -19,6 +20,31 @@ export const player = {
 } as const;
 
 export type Player = typeof player[keyof typeof player];
+
+export const claimed = {
+	USER: "blue",
+	COMPUTER: "red",
+	EMPTY: "hover",
+} as const;
+
+export type Claimed = typeof claimed[keyof typeof claimed];
+
+export const navigationEvent = {
+	SETTINGS: "settings",
+	LEADERBOARD: "leaderboard",
+} as const;
+
+export type NavigationEvent =
+	typeof navigationEvent[keyof typeof navigationEvent];
+
+// Helper Functions
+export const translateClaimed = (option: number | undefined) => {
+	if (option === undefined) {
+		return claimed.EMPTY;
+	}
+
+	return Object.values(claimed)[option];
+};
 
 export const mapEnum = (enumObject: any, value: any): number =>
 	Object.values(enumObject).indexOf(value);

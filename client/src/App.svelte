@@ -1,4 +1,5 @@
 <script lang="ts">
+	// Component Imports
 	import Layout from "./Components/Layout.svelte";
 </script>
 

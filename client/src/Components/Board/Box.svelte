@@ -1,23 +1,29 @@
 <script lang="ts">
-	import { game, updatedBoxes } from "../../stores";
+	// Component Imports
 	import Background from "../SVG/Background.svelte";
 
+	// Local Imports
+	import { claimed, translateClaimed, type Claimed } from "../../enums";
+	import { game, affectedBoxes } from "../../stores";
+
+	// External Props
 	export let average: number;
 	export let x: number;
 	export let y: number;
 
-	let claimed, showBackground, backgroundColour;
+	// Local Variables
+	let claimedBy: Claimed = claimed.EMPTY;
 
-	$: {
-		if ($updatedBoxes.some(([dy, dx]) => x === dx && y === dy)) {
-			claimed = $game.get_box(x, y);
-		}
+	const labelMap = {
+		[claimed.USER]: "You",
+		[claimed.COMPUTER]: "Me",
+	};
 
-		showBackground = claimed !== undefined;
-		backgroundColour = claimed === 0 ? "blue" : "red";
+	// Rerender box if it has been affected by a edge interaction
+	$: if ($affectedBoxes.some(([dy, dx]) => x === dx && y === dy)) {
+		claimedBy = translateClaimed($game.get_box(x, y));
+		// $updatedBoxes = $updatedBoxes.filter(([dy, dx]) => x === dx || y === dy);
 	}
-
-	// $: console.log($updatedBoxes);
 </script>
 
 {#key claimed}
@@ -25,15 +31,15 @@
 		<div
 			class="box flex relative"
 			style="
-			width: {average}em;
-			height: {average}em;
+			width: {average}rem;
+			height: {average}rem;
 		"
 		>
-			{#if showBackground}
-				<Background colour={backgroundColour} />
+			{#if claimedBy !== claimed.EMPTY}
+				<Background {claimedBy} />
 
 				<span class="m-auto z-10">
-					{claimed === 0 ? "You" : "Me"}
+					{labelMap[claimedBy]}
 				</span>
 			{/if}
 		</div>

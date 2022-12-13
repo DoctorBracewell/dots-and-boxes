@@ -1,8 +1,9 @@
 <script lang="ts">
+	// Module Imports
 	import random from "lodash/random";
 
+	// External Props
 	export let average: number;
-
 	export let [x, y]: [number, number] = [0, 0];
 </script>
 
