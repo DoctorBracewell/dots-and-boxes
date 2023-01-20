@@ -2,10 +2,17 @@
 	// Component Imports
 	import Game from "./Board/Game.svelte";
 	import Navigation from "./Navigation/Sidebar.svelte";
+	import Modal from "./Modals/Modal.svelte";
 
-	// ! TODO Modal Handling
-	const handleNavigationClick = (event: CustomEvent<{ label: string }>) => {
-		console.log(event.detail.label);
+	// Module Imports
+	import { Modals, openModal } from "svelte-modals";
+	import type { NavigationEvent } from "../enums";
+
+	// Modal Handling
+	const handleNavigationClick = (event: CustomEvent<NavigationEvent>) => {
+		openModal(Modal, {
+			event: event.detail,
+		});
 	};
 </script>
 
@@ -13,11 +20,14 @@
 	<div class="absolute right-[2.4em] top-[2.4em]">
 		<Navigation on:navigationClick={handleNavigationClick} />
 	</div>
+
+	<Modals />
+
 	<div class="m-auto flex flex-col relative h-full justify-center">
 		<div class="w-full flex">
-			<h1 class="text-3xl m-auto title w-fit">Dots & Boxes</h1>
+			<h1 class="text-3xl m-auto title title-large w-fit">Dots & Boxes</h1>
 		</div>
-		<div class="w-full flex mt-3">
+		<div class="w-full flex mt-3 bg">
 			<Game />
 		</div>
 	</div>
@@ -38,24 +48,7 @@
 		}
 
 		.red-margin {
-			@apply after:md:absolute after:md:w-[0.1em] after:md:h-full after:md:bg-red after:md:left-24;
-		}
-
-		.title {
-			@apply relative z-10 no-underline;
-		}
-
-		.title::before {
-			content: "";
-			position: absolute;
-			left: -10%;
-			bottom: -50%;
-			width: 120%;
-			height: 1em;
-			background-image: url("assets/imgs/underline/large.svg");
-			background-size: 100% 1em;
-			background-repeat: no-repeat;
-			z-index: -2;
+			@apply after:md:absolute after:md:w-[0.1em] after:md:h-full after:md:bg-red-500 after:md:left-24;
 		}
 	}
 </style>

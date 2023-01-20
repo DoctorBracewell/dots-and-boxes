@@ -23,3 +23,5 @@ pub enum EdgeType {
     HorizontalShared,
     VerticalShared,
 }
+
+pub type GameBoxIndices = Vec<[usize; 2]>;

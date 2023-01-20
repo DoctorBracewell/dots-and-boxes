@@ -46,5 +46,8 @@ export const translateClaimed = (option: number | undefined) => {
 	return Object.values(claimed)[option];
 };
 
+export const translateNumber = <T>(enumObject: T, index: any): T[keyof T] =>
+	Object.values(enumObject)[index];
+
 export const mapEnum = (enumObject: any, value: any): number =>
 	Object.values(enumObject).indexOf(value);

@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Component Imports
-	import Background from "../SVG/Background.svelte";
+	import Background from "./Background.svelte";
 
 	// Local Imports
 	import { claimed, translateClaimed, type Claimed } from "../../enums";
@@ -22,7 +22,6 @@
 	// Rerender box if it has been affected by a edge interaction
 	$: if ($affectedBoxes.some(([dy, dx]) => x === dx && y === dy)) {
 		claimedBy = translateClaimed($game.get_box(x, y));
-		// $updatedBoxes = $updatedBoxes.filter(([dy, dx]) => x === dx || y === dy);
 	}
 </script>
 

@@ -16,7 +16,7 @@
 		"
 	>
 		<img
-			class="absolute w-[1.6em] h-[1.6em] top-[-0.8em] left-[-0.8em] z-50"
+			class="absolute w-[1.6em] h-[1.6em] top-[-0.8em] left-[-0.8em] z-[45]"
 			style="transform: rotate({random(360)}deg);"
 			src="assets/imgs/game/dot.svg"
 			alt=""

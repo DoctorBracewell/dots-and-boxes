@@ -8,8 +8,6 @@ use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-use crate::utils::log;
-
 #[wasm_bindgen]
 pub struct Game {
     width: usize,
@@ -136,6 +134,12 @@ impl Game {
 
         any_box_claimed
     }
+
+    pub fn take_turn(&mut self) {
+        self.set_current_player(Player::Computer);
+
+        // self.set_current_player(Player::User);
+    }
 }
 
 // Setters & Getters
@@ -192,6 +196,10 @@ impl Game {
         self.board[y][x].claimed
     }
 }
+
+// Optimal-Play algorithm
+#[wasm_bindgen]
+impl Game {}
 
 // Output & Util
 #[wasm_bindgen]
@@ -269,5 +277,3 @@ impl Game {
         }
     }
 }
-
-type GameBoxIndices = Vec<[usize; 2]>;

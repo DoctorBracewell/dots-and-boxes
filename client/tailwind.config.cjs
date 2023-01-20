@@ -1,13 +1,13 @@
 const config = {
 	content: ["./src/**/*.{html,js,svelte,ts}"],
+	mode: "jit",
+	darkMode: "media",
 
 	theme: {
 		extend: {
 			colors: {
 				white: "#FCFCFC",
 				black: "#050505",
-				red: "#F50400",
-				blue: "#2892D7",
 				grey: "#EDEDED",
 			},
 		},
