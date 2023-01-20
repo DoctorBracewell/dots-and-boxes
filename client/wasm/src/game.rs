@@ -8,6 +8,8 @@ use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
+use super::utils::log;
+
 #[wasm_bindgen]
 pub struct Game {
     width: usize,
@@ -138,7 +140,21 @@ impl Game {
     pub fn take_turn(&mut self) {
         self.set_current_player(Player::Computer);
 
-        // self.set_current_player(Player::User);
+        self.determine_optimal_move();
+
+        self.set_current_player(Player::User);
+    }
+}
+
+// Optimal-Play algorithm
+#[wasm_bindgen]
+impl Game {
+    fn determine_optimal_move(&self) {
+        self.is_looney();
+    }
+
+    fn is_looney(&self) {
+        for game_box in self.board.iter().flatten() {}
     }
 }
 
@@ -196,10 +212,6 @@ impl Game {
         self.board[y][x].claimed
     }
 }
-
-// Optimal-Play algorithm
-#[wasm_bindgen]
-impl Game {}
 
 // Output & Util
 #[wasm_bindgen]

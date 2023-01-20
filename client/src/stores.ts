@@ -33,8 +33,8 @@ export const settings = writable<Settings>({
 	},
 
 	colours: {
-		user: RED,
-		computer: BLUE,
+		user: BLUE,
+		computer: RED,
 	},
 });
 

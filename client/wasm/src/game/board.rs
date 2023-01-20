@@ -8,6 +8,7 @@ pub enum Player {
 }
 
 pub type Claimed = Option<Player>;
+pub type Edges = Vec<Claimed>;
 
 #[wasm_bindgen]
 #[derive(Debug)]
@@ -26,15 +27,27 @@ impl GameBox {
         }
     }
 
+    pub fn edge_count(&self, vertical_edges: &Edges, horizontal_edges: &Edges) -> usize {
+        let vertical_edges_count = self
+            .vertical_edges
+            .iter()
+            .filter(|index| vertical_edges[**index].is_some())
+            .count();
+
+        let horizontal_edges_count = self
+            .horizontal_edges
+            .iter()
+            .filter(|index| horizontal_edges[**index].is_some())
+            .count();
+
+        vertical_edges_count + horizontal_edges_count
+    }
+
     pub fn claim(&mut self, player: Player) {
         self.claimed = Some(player);
     }
 
-    pub fn determine_claim(
-        &mut self,
-        vertical_edges: &Vec<Claimed>,
-        horizontal_edges: &Vec<Claimed>,
-    ) -> bool {
+    pub fn determine_claim(&self, vertical_edges: &Edges, horizontal_edges: &Edges) -> bool {
         let all_vertical_edges_claimed = self
             .vertical_edges
             .iter()

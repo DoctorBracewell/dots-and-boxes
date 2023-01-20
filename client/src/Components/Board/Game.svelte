@@ -28,8 +28,6 @@
 
 		horizontalEdges = (height + 1) * width;
 		verticalEdges = (width + 1) * height;
-
-		console.log($affectedBoxes);
 	}
 
 	// $game.print_board();
