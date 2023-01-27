@@ -6,7 +6,6 @@ use properties::{EdgeType::*, *};
 
 use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
-use web_sys::console;
 
 use super::utils::log;
 
@@ -154,7 +153,26 @@ impl Game {
     }
 
     fn is_looney(&self) {
-        for game_box in self.board.iter().flatten() {}
+        for game_box in self.board.iter().flatten() {
+            let edges = game_box.edge_count(&self.vertical_edges, &self.horizontal_edges);
+
+            if edges == 3 {
+                self.start_chain(game_box);
+            }
+        }
+    }
+
+    fn start_chain(&self, starting_box: &GameBox) {
+        let mut chain = vec![];
+
+        // Follow boxes directly connected to the starting box and add them to the chain if they have two open edges
+        for edge in starting_box.edges.iter() {
+            let game_box = 
+
+            if game_box.edge_count(&self.vertical_edges, &self.horizontal_edges) == 2 {
+                chain.push(game_box);
+            }
+        }
     }
 }
 
@@ -273,7 +291,7 @@ impl Game {
     pub fn print_board(&self) {
         for row in &self.board {
             for game_box in row {
-                console::log_1(&format!("{:?}", game_box).into());
+                log(game_box);
             }
         }
     }
@@ -281,11 +299,11 @@ impl Game {
     #[cfg(debug_assertions)]
     pub fn print_edges(&self) {
         for edge in &self.horizontal_edges {
-            console::log_1(&format!("{:?}", edge).into());
+            log(edge);
         }
 
         for edge in &self.vertical_edges {
-            console::log_1(&format!("{:?}", edge).into());
+            log(edge);
         }
     }
 }
