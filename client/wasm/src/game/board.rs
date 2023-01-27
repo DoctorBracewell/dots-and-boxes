@@ -29,14 +29,12 @@ impl GameBox {
 
     pub fn edge_count(&self, vertical_edges: &Edges, horizontal_edges: &Edges) -> usize {
         let vertical_edges_count = self
-            .vertical_edges
-            .iter()
+            .vertical_edges_iterator()
             .filter(|index| vertical_edges[**index].is_some())
             .count();
 
         let horizontal_edges_count = self
-            .horizontal_edges
-            .iter()
+            .horizontal_edges_iterator()
             .filter(|index| horizontal_edges[**index].is_some())
             .count();
 
@@ -49,15 +47,21 @@ impl GameBox {
 
     pub fn determine_claim(&self, vertical_edges: &Edges, horizontal_edges: &Edges) -> bool {
         let all_vertical_edges_claimed = self
-            .vertical_edges
-            .iter()
+            .vertical_edges_iterator()
             .all(|index| vertical_edges[*index].is_some());
 
         let all_horizontal_edges_claimed = self
-            .horizontal_edges
-            .iter()
+            .horizontal_edges_iterator()
             .all(|index| horizontal_edges[*index].is_some());
 
         all_vertical_edges_claimed && all_horizontal_edges_claimed
+    }
+
+    fn vertical_edges_iterator(&self) -> impl Iterator<Item = &usize> {
+        self.vertical_edges.iter()
+    }
+
+    fn horizontal_edges_iterator(&self) -> impl Iterator<Item = &usize> {
+        self.horizontal_edges.iter()
     }
 }

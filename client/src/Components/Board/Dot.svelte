@@ -2,6 +2,9 @@
 	// Module Imports
 	import random from "lodash/random";
 
+	// Asset Imports
+	import dotURL from "../../imgs/game/dot.svg";
+
 	// External Props
 	export let average: number;
 	export let [x, y]: [number, number] = [0, 0];
@@ -18,7 +21,7 @@
 		<img
 			class="absolute w-[1.6em] h-[1.6em] top-[-0.8em] left-[-0.8em] z-[45]"
 			style="transform: rotate({random(360)}deg);"
-			src="assets/imgs/game/dot.svg"
+			src={dotURL}
 			alt=""
 		/>
 	</div>

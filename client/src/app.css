@@ -4,7 +4,7 @@
 
 @font-face {
 	font-family: "Virgil";
-	src: url("assets/fonts/virgil.woff2") format("woff2");
+	src: url("/fonts/virgil.woff2") format("woff2");
 }
 
 :root {
@@ -29,11 +29,11 @@ html {
 	}
 
 	.sliding-underline-small::before {
-		background-image: url("assets/imgs/underline/small.svg");
+		background-image: url("/svg/underline/small.svg");
 	}
 
 	.sliding-underline-medium::before {
-		background-image: url("assets/imgs/underline/medium.svg");
+		background-image: url("/svg/underline/medium.svg");
 	}
 
 	.sliding-underline::before {
@@ -81,17 +81,17 @@ html {
 		bottom: -50%;
 		width: 120%;
 		height: 1em;
-		background-image: url("assets/imgs/underline/large.svg");
+		background-image: url("/svg/underline/large.svg");
 		background-size: 100% 1em;
 		background-repeat: no-repeat;
 		z-index: -2;
 	}
 
 	.title-large::before {
-		background-image: url("assets/imgs/underline/large.svg");
+		background-image: url("/svg/underline/large.svg");
 	}
 
 	.title-medium::before {
-		background-image: url("assets/imgs/underline/medium.svg");
+		background-image: url("/svg/underline/medium.svg");
 	}
 }
