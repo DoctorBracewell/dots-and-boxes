@@ -13,6 +13,8 @@
 		translateClaimed,
 		type Claimed,
 		type LineType,
+		translateNumber,
+		type Player,
 	} from "../../../enums";
 	import { game, affectedBoxes, settings } from "../../../stores";
 
@@ -27,7 +29,7 @@
 	// Local Variables
 	let lineClaimed: Claimed = claimed.EMPTY;
 
-	const handleClick = () => {
+	const handleClick = async () => {
 		if ($game.current_player === mapEnum(player, player.COMPUTER)) return;
 
 		// Calculate the boxes affected by the interaction
@@ -45,7 +47,13 @@
 		lineClaimed = translateClaimed(edge);
 
 		// Computer turn
-		$game.take_turn();
+		$game.current_player = mapEnum(player, player.COMPUTER);
+
+		while ($game.current_player === mapEnum(player, player.COMPUTER)) {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			$game.computer_turn();
+		}
 	};
 
 	// Reactively update the colour when settings change

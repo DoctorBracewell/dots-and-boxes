@@ -1,11 +1,19 @@
 mod board;
 mod properties;
 
+use std::time::{self, Duration};
+
 use board::*;
-use properties::{EdgeType::*, *};
+use petgraph::graph::{Node, NodeIndex};
+use properties::{EdgeType::*, LineType::*, *};
 
 use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
+
+use petgraph::dot::Dot;
+use petgraph::{visit, Graph, Undirected};
+
+use wasm_timer::Delay;
 
 use super::utils::log;
 
@@ -18,6 +26,7 @@ pub struct Game {
     board: Vec<Vec<GameBox>>,
     vertical_edges: Vec<Claimed>,
     horizontal_edges: Vec<Claimed>,
+    graph: Graph<GraphNode, (), Undirected>,
 }
 
 // Main Game logic
@@ -29,6 +38,61 @@ impl Game {
         let horizontal_edges = vec![None; width * (height + 1)];
 
         let board = Game::generate_board(height, width);
+        let mut graph: Graph<GraphNode, (), Undirected> = Graph::new_undirected();
+        let mut boxes: Vec<Vec<NodeIndex>> = vec![];
+
+        let ground = graph.add_node(GraphNode::Ground);
+
+        for row in 0..height {
+            boxes.push(vec![]);
+
+            for _ in 0..width {
+                let node_index = graph.add_node(GraphNode::Box);
+
+                boxes[row].push(node_index);
+            }
+        }
+
+        for row in 0..height {
+            for column in 0..width {
+                let top = if row == 0 {
+                    ground
+                } else {
+                    boxes[(row - 1)][column]
+                };
+
+                let bottom = if row == height - 1 {
+                    ground
+                } else {
+                    boxes[(row + 1)][column]
+                };
+
+                let left = if column == 0 {
+                    ground
+                } else {
+                    boxes[row][(column - 1)]
+                };
+
+                let right = if column == width - 1 {
+                    ground
+                } else {
+                    boxes[row][(column + 1)]
+                };
+
+                let box_node = boxes[row][column];
+
+                for node_to_connect in [left, top, right, bottom].iter() {
+                    if !matches!(graph.find_edge(box_node, *node_to_connect), Some(_))
+                        || *node_to_connect == ground
+                    {
+                        graph.add_edge(box_node, *node_to_connect, ());
+                    }
+                }
+            }
+        }
+
+        // Output graph in DOT format
+        // log(Dot::new(&graph));
 
         Self {
             height,
@@ -38,6 +102,7 @@ impl Game {
             board,
             vertical_edges,
             horizontal_edges,
+            graph,
         }
     }
 
@@ -70,9 +135,8 @@ impl Game {
             let game_box_indices = self.affected_boxes(index, &line_type);
             let any_box_claimed = self.claim_boxes(&game_box_indices);
 
-            if !any_box_claimed {
-                self.switch_player();
-            }
+            // Remove edges from graph
+            self.remove_edge(&game_box_indices);
 
             game_box_indices
                 .into_iter()
@@ -84,6 +148,20 @@ impl Game {
         };
 
         Uint32Array::from(&game_boxes[..])
+    }
+
+    fn remove_edge(&mut self, indices: &GameBoxIndices) {
+        let a = (indices[0][0] * self.width + indices[0][1]) + 1;
+        let b = match indices.get(1) {
+            Some(index) => (index[0] * self.width + index[1]) + 1,
+            None => 0,
+        };
+
+        let (node_one, node_two) = (NodeIndex::new(a), NodeIndex::new(b));
+
+        let edge_to_remove = self.graph.find_edge(node_one, node_two).unwrap();
+
+        self.graph.remove_edge(edge_to_remove);
     }
 
     fn claim_edge(&mut self, index: usize, line_type: &LineType) {
@@ -136,43 +214,113 @@ impl Game {
         any_box_claimed
     }
 
-    pub fn take_turn(&mut self) {
-        self.set_current_player(Player::Computer);
-
-        self.determine_optimal_move();
-
-        self.set_current_player(Player::User);
+    pub fn computer_turn(&mut self) {
+        self.play_optimal_move();
+        log("computer turn");
+        self.current_player = Player::User;
     }
 }
 
 // Optimal-Play algorithm
 #[wasm_bindgen]
 impl Game {
-    fn determine_optimal_move(&self) {
-        self.is_looney();
-    }
+    fn play_optimal_move(&self) {
+        let chains = self.count_chains();
+        let looney = self.is_looney(&chains);
 
-    fn is_looney(&self) {
-        for game_box in self.board.iter().flatten() {
-            let edges = game_box.edge_count(&self.vertical_edges, &self.horizontal_edges);
+        log(chains);
 
-            if edges == 3 {
-                self.start_chain(game_box);
-            }
+        if looney {
+            log("is looney");
+            // self.make_looney_move(&chains);
+        } else {
+            // self.make_optimal_move(&chains);
         }
     }
 
-    fn start_chain(&self, starting_box: &GameBox) {
-        let mut chain = vec![];
+    fn count_chains(&self) -> Vec<Vec<NodeIndex>> {
+        // Initialise vectors to track chains and visited boxes
+        let mut visited_nodes: Vec<NodeIndex> = vec![];
+        let mut chains: Vec<Vec<NodeIndex>> = vec![];
 
-        // Follow boxes directly connected to the starting box and add them to the chain if they have two open edges
-        for edge in starting_box.edges.iter() {
-            let game_box = 
+        // Iterate over all boxes
+        for node in self.graph.node_indices().skip(1) {
+            // Do not start chains from boxes that have already been visited
+            if !visited_nodes.contains(&node) {
+                let chain = self.start_chain(node, &visited_nodes);
 
-            if game_box.edge_count(&self.vertical_edges, &self.horizontal_edges) == 2 {
-                chain.push(game_box);
+                // If a chain is found, add it to the list of chains and append all of its boxes to visited nodes
+                if chain.len() != 0 {
+                    visited_nodes.extend(chain.iter());
+                    chains.push(chain);
+                }
             }
         }
+
+        chains
+    }
+
+    fn start_chain(
+        &self,
+        current_node: NodeIndex,
+        visited_nodes: &Vec<NodeIndex>,
+    ) -> Vec<NodeIndex> {
+        let mut chain: Vec<NodeIndex> = vec![];
+        let neighbours: Vec<NodeIndex> = self.graph.neighbors(current_node).collect();
+
+        if neighbours.len() == 1 {
+            chain.push(current_node);
+            self.continue_chain(neighbours[0], &mut chain, visited_nodes);
+        }
+
+        return chain;
+    }
+
+    fn continue_chain(
+        &self,
+        current_node: NodeIndex,
+        chain: &mut Vec<NodeIndex>,
+        visited_nodes: &Vec<NodeIndex>,
+    ) {
+        let neighbors: Vec<NodeIndex> = self.graph.neighbors(current_node).collect();
+        let length = neighbors.len();
+
+        if let GraphNode::Ground = self.graph.node_weight(current_node).unwrap() {
+            return;
+        }
+
+        if length > 2 {
+            return;
+        }
+
+        if neighbors.iter().any(|node| visited_nodes.contains(&node)) {
+            chain.clear();
+            return;
+        }
+
+        chain.push(current_node);
+
+        if length == 1 {
+            return;
+        }
+
+        let next_node = neighbors
+            .iter()
+            .filter(|node| !chain.contains(node))
+            .next()
+            .unwrap();
+
+        self.continue_chain(*next_node, chain, visited_nodes);
+    }
+
+    fn is_looney(&self, chains: &Vec<Vec<NodeIndex>>) -> bool {
+        chains.iter().all(|chain| chain.len() >= 3)
+            && chains
+                .into_iter()
+                .flatten()
+                .collect::<Vec<&NodeIndex>>()
+                .len()
+                == self.width * self.height
     }
 }
 

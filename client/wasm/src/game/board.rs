@@ -1,6 +1,13 @@
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[derive(Debug)]
+pub enum GraphNode {
+    Ground,
+    Box,
+}
+
+#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Player {
     User,
@@ -11,7 +18,7 @@ pub type Claimed = Option<Player>;
 pub type Edges = Vec<Claimed>;
 
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GameBox {
     pub claimed: Claimed,
     vertical_edges: [usize; 2],

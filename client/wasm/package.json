@@ -3,5 +3,9 @@
 	"scripts": {
 		"build": "wasm-pack build --target web",
 		"postbuild": "node update_package_json.js"
+	},
+	"devDependencies": {
+		"prettier": "^2.8.3",
+		"prettier-plugin-tailwindcss": "^0.2.2"
 	}
 }
