@@ -138,6 +138,10 @@ impl Game {
             // Remove edges from graph
             self.remove_edge(&game_box_indices);
 
+            if !any_box_claimed {
+                self.switch_player();
+            }
+
             game_box_indices
                 .into_iter()
                 .flatten()
@@ -216,7 +220,6 @@ impl Game {
 
     pub fn computer_turn(&mut self) {
         self.play_optimal_move();
-        log("computer turn");
         self.current_player = Player::User;
     }
 }

@@ -7,7 +7,7 @@
 
 	// Local Imports
 	import { lineType } from "../../enums";
-	import { game, affectedBoxes } from "../../stores";
+	import { game, gameState } from "../../stores";
 	import { range } from "../../utils";
 
 	// Module Imports
@@ -34,7 +34,7 @@
 </script>
 
 <main class="w-full h-full bg-transparent relative flex flex-col select-none">
-	{#key $affectedBoxes}
+	{#key $gameState.affectedBoxes}
 		<div class="score mx-auto mb-5">
 			<Score />
 		</div>

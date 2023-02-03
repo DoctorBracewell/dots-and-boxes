@@ -4,7 +4,7 @@
 
 	// Local Imports
 	import { claimed, translateClaimed, type Claimed } from "../../enums";
-	import { game, affectedBoxes } from "../../stores";
+	import { game, gameState } from "../../stores";
 
 	// External Props
 	export let average: number;
@@ -20,7 +20,7 @@
 	};
 
 	// Rerender box if it has been affected by a edge interaction
-	$: if ($affectedBoxes.some(([dy, dx]) => x === dx && y === dy)) {
+	$: if ($gameState.affectedBoxes.some(([dy, dx]) => x === dx && y === dy)) {
 		claimedBy = translateClaimed($game.get_box(x, y));
 	}
 </script>

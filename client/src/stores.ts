@@ -1,7 +1,14 @@
 // Local Imports
 import init from "../wasm/pkg/wasm";
 import { Game } from "../wasm/pkg/wasm";
-import { difficulty, mapEnum, translateNumber, type Difficulty } from "./enums";
+import {
+	difficulty,
+	player,
+	mapEnum,
+	translateNumber,
+	type Difficulty,
+	type Player,
+} from "./enums";
 import { RED, BLUE } from "./constants";
 
 // Module Imports
@@ -12,7 +19,15 @@ await init();
 export const game = writable<Game>(new Game(5, 5));
 
 // Affected Boxes is used to rerender the boxes that have been affected an edge interaction
-export const affectedBoxes = writable<number[][]>([]);
+interface GameState {
+	affectedBoxes: number[][];
+	currentPlayer: Player;
+}
+
+export const gameState = writable<GameState>({
+	affectedBoxes: [],
+	currentPlayer: player.USER,
+});
 
 // Extract settings data from local storage and save into writable store
 interface Settings {

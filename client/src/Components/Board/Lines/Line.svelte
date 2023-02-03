@@ -16,7 +16,7 @@
 		translateNumber,
 		type Player,
 	} from "../../../enums";
-	import { game, affectedBoxes, settings } from "../../../stores";
+	import { game, gameState, settings } from "../../../stores";
 
 	// Module Imports
 	import chunk from "lodash/chunk";
@@ -40,20 +40,20 @@
 		);
 
 		// Save the affected boxes into the store
-		$affectedBoxes = chunked_claimed_boxes;
+		$gameState.affectedBoxes = chunked_claimed_boxes;
+		$gameState.currentPlayer = translateNumber(player, $game.current_player);
 
 		// Update the edge colour
 		const edge = $game.get_edge(index, mapEnum(lineType, line));
 		lineClaimed = translateClaimed(edge);
 
 		// Computer turn
-		$game.current_player = mapEnum(player, player.COMPUTER);
-
 		while ($game.current_player === mapEnum(player, player.COMPUTER)) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-
 			$game.computer_turn();
 		}
+
+		$gameState.currentPlayer = translateNumber(player, $game.current_player);
 	};
 
 	// Reactively update the colour when settings change
