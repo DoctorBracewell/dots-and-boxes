@@ -1,19 +1,18 @@
 mod board;
 mod properties;
 
-use std::time::{self, Duration};
+use std::ops::AddAssign;
 
 use board::*;
-use petgraph::graph::{Node, NodeIndex};
+use petgraph::graph::{Edge, EdgeIndex, Node, NodeIndex};
 use properties::{EdgeType::*, LineType::*, *};
 
 use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 
 use petgraph::dot::Dot;
-use petgraph::{visit, Graph, Undirected};
-
-use wasm_timer::Delay;
+use petgraph::stable_graph::{StableGraph, StableUnGraph};
+use petgraph::Undirected;
 
 use super::utils::log;
 
@@ -26,7 +25,7 @@ pub struct Game {
     board: Vec<Vec<GameBox>>,
     vertical_edges: Vec<Claimed>,
     horizontal_edges: Vec<Claimed>,
-    graph: Graph<GraphNode, (), Undirected>,
+    graph: StableUnGraph<GraphNode, ()>,
 }
 
 // Main Game logic
@@ -38,7 +37,7 @@ impl Game {
         let horizontal_edges = vec![None; width * (height + 1)];
 
         let board = Game::generate_board(height, width);
-        let mut graph: Graph<GraphNode, (), Undirected> = Graph::new_undirected();
+        let mut graph: StableUnGraph<GraphNode, ()> = StableGraph::default();
         let mut boxes: Vec<Vec<NodeIndex>> = vec![];
 
         let ground = graph.add_node(GraphNode::Ground);
@@ -53,46 +52,43 @@ impl Game {
             }
         }
 
+        // Add horizontal edges
         for row in 0..height {
             for column in 0..width {
-                let top = if row == 0 {
-                    ground
-                } else {
-                    boxes[(row - 1)][column]
-                };
-
-                let bottom = if row == height - 1 {
-                    ground
-                } else {
-                    boxes[(row + 1)][column]
-                };
-
-                let left = if column == 0 {
-                    ground
-                } else {
-                    boxes[row][(column - 1)]
-                };
-
-                let right = if column == width - 1 {
-                    ground
-                } else {
-                    boxes[row][(column + 1)]
-                };
-
                 let box_node = boxes[row][column];
 
-                for node_to_connect in [left, top, right, bottom].iter() {
-                    if !matches!(graph.find_edge(box_node, *node_to_connect), Some(_))
-                        || *node_to_connect == ground
-                    {
-                        graph.add_edge(box_node, *node_to_connect, ());
-                    }
+                if row == 0 {
+                    graph.add_edge(box_node, ground, ());
+                } else {
+                    graph.add_edge(box_node, boxes[row - 1][column], ());
+                }
+            }
+        }
+
+        for column in 0..width {
+            graph.add_edge(boxes[height - 1][column], ground, ());
+        }
+
+        // Add vertical edges
+        for row in 0..height {
+            for column in 0..width {
+                let box_node = boxes[row][column];
+
+                if column == 0 {
+                    graph.add_edge(box_node, ground, ());
+                } else {
+                    graph.add_edge(box_node, boxes[row][column - 1], ());
+                }
+
+                if column == width - 1 {
+                    graph.add_edge(box_node, ground, ());
                 }
             }
         }
 
         // Output graph in DOT format
         // log(Dot::new(&graph));
+        // log(graph.edge_count());
 
         Self {
             height,
@@ -126,7 +122,7 @@ impl Game {
         board
     }
 
-    pub fn interact_edge(&mut self, index: usize, line_type: LineType) -> Uint32Array {
+    pub fn interact_edge(&mut self, index: usize, line_type: LineType) -> Vec<u32> {
         let edge = self.get_edge(index, line_type);
 
         let game_boxes = if let None = edge {
@@ -151,7 +147,11 @@ impl Game {
             vec![]
         };
 
-        Uint32Array::from(&game_boxes[..])
+        game_boxes
+    }
+
+    pub fn handle_edge_interact(&mut self, index: usize, line_type: LineType) -> Uint32Array {
+        Uint32Array::from(&self.interact_edge(index, line_type)[..])
     }
 
     fn remove_edge(&mut self, indices: &GameBoxIndices) {
@@ -218,27 +218,34 @@ impl Game {
         any_box_claimed
     }
 
-    pub fn computer_turn(&mut self) {
-        self.play_optimal_move();
-        self.current_player = Player::User;
+    pub fn computer_turn(&mut self) -> TurnInformation {
+        self.play_optimal_move()
     }
 }
 
 // Optimal-Play algorithm
 #[wasm_bindgen]
 impl Game {
-    fn play_optimal_move(&self) {
+    fn play_optimal_move(&mut self) -> TurnInformation {
         let chains = self.count_chains();
-        let looney = self.is_looney(&chains);
 
-        log(chains);
+        // log(&chains);
 
-        if looney {
-            log("is looney");
-            // self.make_looney_move(&chains);
-        } else {
-            // self.make_optimal_move(&chains);
-        }
+        // if chains.len() >= 1 {
+        //     self.make_looney_move(chains)
+        // } else {
+        //     self.switch_player();
+        TurnInformation::new(0, LineType::Horizontal, Box::new([]))
+        // }
+
+        // let looney = self.is_looney(&chains);
+
+        // if looney {
+        //     log("is looney");
+        //     self.make_looney_move(chains);
+        // } else {
+        //     // self.make_optimal_move(&chains);
+        // }
     }
 
     fn count_chains(&self) -> Vec<Vec<NodeIndex>> {
@@ -289,10 +296,12 @@ impl Game {
         let length = neighbors.len();
 
         if let GraphNode::Ground = self.graph.node_weight(current_node).unwrap() {
+            chain.push(current_node);
             return;
         }
 
         if length > 2 {
+            chain.push(current_node);
             return;
         }
 
@@ -325,6 +334,54 @@ impl Game {
                 .len()
                 == self.width * self.height
     }
+
+    // fn make_looney_move(&mut self, chains: Vec<Vec<NodeIndex>>) -> TurnInformation {
+    //     let shortest_chain = chains
+    //         .iter()
+    //         .reduce(|a, b| if a.len() > b.len() { a } else { b })
+    //         .unwrap();
+
+    //     let length = shortest_chain.len();
+
+    //     log(shortest_chain);
+
+    //     let (node_1, node_2) = if chains.len() == 1 {
+    //         (shortest_chain[0], shortest_chain[1])
+    //     } else if length >= 4 {
+    //         (shortest_chain[0], shortest_chain[1])
+    //     } else {
+    //         (shortest_chain[length - 1], shortest_chain[length - 2])
+    //     };
+
+    //     log(node_1);
+    //     log(node_2);
+
+    //     let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
+
+    //     TurnInformation::new(
+    //         index,
+    //         line_type,
+    //         self.interact_edge(index, line_type).into(),
+    //     )
+    // }
+
+    // fn graph_edge_to_board(&self, node_1: NodeIndex, node_2: NodeIndex) -> (usize, LineType) {
+    //     let edge = self.graph.find_edge(node_1, node_2).unwrap().index();
+    //     let horizontal_edge_count = self.width * (self.height + 1);
+
+    //     let line_type = if edge <= horizontal_edge_count - 1 {
+    //         LineType::Horizontal
+    //     } else {
+    //         LineType::Vertical
+    //     };
+
+    //     let line_index = match line_type {
+    //         Horizontal => edge,
+    //         Vertical => edge - horizontal_edge_count,
+    //     };
+
+    //     (line_index, line_type)
+    // }
 }
 
 // Setters & Getters

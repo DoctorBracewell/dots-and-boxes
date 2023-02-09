@@ -7,7 +7,7 @@
 	};
 </script>
 
-<div class="flex flex-col justify-between gap-5">
+<div class="flex flex-col justify-between gap-5 text-xl">
 	<div class="difficulty flex">
 		<span class="flex-shrink">Difficulty:</span>
 		<div class="inline-flex flex-grow gap-3 w-full justify-center">

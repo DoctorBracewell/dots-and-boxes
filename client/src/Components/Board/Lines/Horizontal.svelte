@@ -17,7 +17,7 @@
 			><path
 				d="M1.59 0.9 C27.11 -0.51, 51.83 0.13, 94.29 -0.48 M0.22 0.06 C27.95 1.45, 58.25 0.65, 95.06 0.31"
 				{stroke}
-				in:draw={{ delay: 0, duration: 500 }}
+				in:draw|local={{ delay: 0, duration: 500 }}
 				stroke-width="2"
 				fill="none"
 			/></g

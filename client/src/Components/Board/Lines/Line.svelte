@@ -7,14 +7,13 @@
 	// Local Imports
 	import {
 		claimed,
-		lineType,
 		player,
+		lineType as lineTypeEnum,
 		mapEnum,
 		translateClaimed,
 		type Claimed,
 		type LineType,
 		translateNumber,
-		type Player,
 	} from "../../../enums";
 	import { game, gameState, settings } from "../../../stores";
 
@@ -23,17 +22,64 @@
 
 	// External Props
 	export let average: number;
-	export let line: LineType;
+	export let lineType: LineType;
 	export let index: number;
 
 	// Local Variables
-	let lineClaimed: Claimed = claimed.EMPTY;
+	let lineClaimed: Claimed;
+	let affected = false;
+
+	// Rerender this line whenever the store updates
+	const updateClaimed = () =>
+		(lineClaimed = translateClaimed(
+			$game.get_edge(index, mapEnum(lineTypeEnum, lineType))
+		));
 
 	const handleClick = async () => {
 		if ($game.current_player === mapEnum(player, player.COMPUTER)) return;
+		if (lineClaimed !== claimed.EMPTY) return;
 
+		/* User Turn */
+		updateAffectedBoxes(
+			$game.handle_edge_interact(index, mapEnum(lineTypeEnum, lineType))
+		);
+
+		/* Computer Turn
+		 * Ideally the computer turn logic would be in the WASM logic
+		 * but WASM cannot block the thread to "sleep" for a second
+		 * so the turn-taking and second-turn logic is here instead
+		 */
+		while ($game.current_player === mapEnum(player, player.COMPUTER)) {
+			// Sleep for a second before the computer makes a move
+			await new Promise((resolve) => setTimeout(resolve, 300));
+
+			// Let the computer take a move and retrieve information to update the UI
+			const turnInformation = $game.computer_turn();
+			const indexToUpdate = turnInformation[0],
+				lineTypeToUpdate = translateNumber(lineTypeEnum, turnInformation[1]),
+				affectedBoxes = turnInformation.affected_boxes;
+
+			// Update affected boxes
+			updateAffectedBoxes(affectedBoxes);
+
+			// Update the line
+			$gameState.affectedLines = [
+				[
+					lineTypeToUpdate === lineTypeEnum.HORIZONTAL
+						? indexToUpdate
+						: indexToUpdate - $game.width * ($game.height + 1),
+					translateNumber(lineTypeEnum, lineTypeToUpdate),
+				],
+			];
+		}
+
+		// Update the current player
+		$gameState.currentPlayer = translateNumber(player, $game.current_player);
+	};
+
+	// Receive affected boxes information from WASM logic and trigger a UI update
+	const updateAffectedBoxes = (affected_boxes: Uint32Array) => {
 		// Calculate the boxes affected by the interaction
-		const affected_boxes = $game.interact_edge(index, mapEnum(lineType, line));
 		const chunked_affected_boxes: number[][] = chunk(affected_boxes, 2);
 		const chunked_claimed_boxes = chunked_affected_boxes.filter(
 			([y, x]) => translateClaimed($game.get_box(x, y)) !== claimed.EMPTY
@@ -43,18 +89,19 @@
 		$gameState.affectedBoxes = chunked_claimed_boxes;
 		$gameState.currentPlayer = translateNumber(player, $game.current_player);
 
-		// Update the edge colour
-		const edge = $game.get_edge(index, mapEnum(lineType, line));
-		lineClaimed = translateClaimed(edge);
-
-		// Computer turn
-		while ($game.current_player === mapEnum(player, player.COMPUTER)) {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			$game.computer_turn();
-		}
-
-		$gameState.currentPlayer = translateNumber(player, $game.current_player);
+		// Update the UI for this line
+		updateClaimed();
 	};
+
+	// Update the line if the store updates (triggered by a computer turn)
+	$: {
+		affected = $gameState.affectedLines.some(
+			(line) => index === line[0] && lineType === line[1]
+		);
+
+		// Update the UI for this line
+		updateClaimed();
+	}
 
 	// Reactively update the colour when settings change
 	let colour = "";
@@ -69,25 +116,27 @@
 	}
 </script>
 
-<div
-	class="flex bg-transparent"
-	title="line"
-	style="
+{#key affected}
+	<div
+		class="flex bg-transparent"
+		title="line"
+		style="
 		width: {average}em;
 		height: {average}em;
 	"
-	on:click={handleClick}
-	on:keypress={handleClick}
->
-	{#if lineClaimed === claimed.EMPTY}
-		<Hover {line} />
-	{:else if line === lineType.HORIZONTAL}
-		<div class="line w-full h-4 z-40 -mt-2">
-			<Horizontal stroke={colour} />
-		</div>
-	{:else if line === lineType.VERTICAL}
-		<div class="line h-full w-8 z-40 -ml-4">
-			<Vertical stroke={colour} />
-		</div>
-	{/if}
-</div>
+		on:click={handleClick}
+		on:keypress={handleClick}
+	>
+		{#if lineClaimed === claimed.EMPTY}
+			<Hover {lineType} />
+		{:else if lineType === lineTypeEnum.HORIZONTAL}
+			<div class="line w-full h-4 z-40 -mt-2">
+				<Horizontal stroke={colour} />
+			</div>
+		{:else if lineType === lineTypeEnum.VERTICAL}
+			<div class="line h-full w-8 z-40 -ml-4">
+				<Vertical stroke={colour} />
+			</div>
+		{/if}
+	</div>
+{/key}

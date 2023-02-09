@@ -24,7 +24,7 @@
 		width = $game.width;
 		height = $game.height;
 
-		average = 9 / Math.sqrt((width + height) / 2);
+		average = 11 / Math.sqrt((width + height) / 2);
 
 		horizontalEdges = (height + 1) * width;
 		verticalEdges = (width + 1) * height;
@@ -35,12 +35,12 @@
 
 <main class="w-full h-full bg-transparent relative flex flex-col select-none">
 	{#key $gameState.affectedBoxes}
-		<div class="score mx-auto mb-5">
+		<div class="score mx-auto mb-5 md:mb-6">
 			<Score />
 		</div>
 	{/key}
 
-	<div class="relative w-full h-full flex flex-col">
+	<div class="relative m-auto h-full flex flex-col">
 		<div class="m-auto">
 			{#each [...range(0, height)] as y}
 				<div class="flex">
@@ -56,7 +56,7 @@
 			{#each chunk([...range(0, horizontalEdges)], $game.width) as row}
 				<div class="flex">
 					{#each row as index}
-						<Line {index} {average} line={lineType.HORIZONTAL} />
+						<Line {index} {average} lineType={lineType.HORIZONTAL} />
 					{/each}
 				</div>
 			{/each}
@@ -67,7 +67,7 @@
 			{#each chunk([...range(0, verticalEdges)], $game.height + 1) as row}
 				<div class="flex">
 					{#each row as index}
-						<Line {index} {average} line={lineType.VERTICAL} />
+						<Line {index} {average} lineType={lineType.VERTICAL} />
 					{/each}
 				</div>
 			{/each}

@@ -8,6 +8,7 @@ import {
 	translateNumber,
 	type Difficulty,
 	type Player,
+	type LineType,
 } from "./enums";
 import { RED, BLUE } from "./constants";
 
@@ -21,11 +22,13 @@ export const game = writable<Game>(new Game(5, 5));
 // Affected Boxes is used to rerender the boxes that have been affected an edge interaction
 interface GameState {
 	affectedBoxes: number[][];
+	affectedLines: [number, LineType][];
 	currentPlayer: Player;
 }
 
 export const gameState = writable<GameState>({
 	affectedBoxes: [],
+	affectedLines: [],
 	currentPlayer: player.USER,
 });
 

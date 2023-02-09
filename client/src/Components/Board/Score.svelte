@@ -5,11 +5,15 @@
 </script>
 
 <div class="flex">
-	<span class="font-bold text-lg" style="color: {$settings.colours.user}"
+	<span
+		class="font-bold text-lg md:text-2xl"
+		style="color: {$settings.colours.user}"
 		>{$game.count_boxes(mapEnum(player, player.USER))}</span
 	>
-	<span class="mx-2">-</span>
-	<span class="font-bold text-lg" style="color: {$settings.colours.computer}"
+	<span class="mx-3">-</span>
+	<span
+		class="font-bold text-lg md:text-2xl"
+		style="color: {$settings.colours.computer}"
 		>{$game.count_boxes(mapEnum(player, player.COMPUTER))}</span
 	>
 </div>

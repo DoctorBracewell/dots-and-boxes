@@ -19,7 +19,7 @@
 		"
 	>
 		<img
-			class="absolute w-[1.6em] h-[1.6em] top-[-0.8em] left-[-0.8em] z-[45]"
+			class="absolute w-[2em] h-[2em] top-[-1em] left-[-1em] z-[45]"
 			style="transform: rotate({random(360)}deg);"
 			src={dotURL}
 			alt=""

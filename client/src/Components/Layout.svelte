@@ -17,17 +17,17 @@
 </script>
 
 <div class="w-full h-full flex relative bg-paper red-margin">
-	<div class="absolute right-[2.4em] top-[2.4em]">
-		<Navigation on:navigationClick={handleNavigationClick} />
-	</div>
+	<Navigation on:navigationClick={handleNavigationClick} />
 
 	<Modals />
 
 	<div class="m-auto flex flex-col relative h-full justify-center">
 		<div class="w-full flex">
-			<h1 class="text-3xl m-auto title title-large w-fit">Dots & Boxes</h1>
+			<h1 class="text-4xl md:text-5xl m-auto title title-large w-fit">
+				Dots & Boxes
+			</h1>
 		</div>
-		<div class="w-full flex mt-3 bg">
+		<div class="w-full flex mt-4 md:mt-6 bg">
 			<Game />
 		</div>
 	</div>
@@ -41,14 +41,14 @@
 			@apply relative;
 			background: repeating-linear-gradient(
 				var(--white),
-				var(--white) 2rem,
-				var(--grey) 2rem,
-				var(--grey) 2.05rem
+				var(--white) 2.5rem,
+				var(--grey) 2.5rem,
+				var(--grey) 2.55rem
 			);
 		}
 
 		.red-margin {
-			@apply after:md:absolute after:md:w-[0.1em] after:md:h-full after:md:bg-red-500 after:md:left-24;
+			@apply after:md:absolute after:md:w-[0.1em] after:md:h-full after:md:bg-red-500 after:md:left-32;
 		}
 	}
 </style>

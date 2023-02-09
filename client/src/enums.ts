@@ -22,8 +22,8 @@ export const player = {
 export type Player = typeof player[keyof typeof player];
 
 export const claimed = {
-	USER: "blue",
-	COMPUTER: "red",
+	USER: "user",
+	COMPUTER: "computer",
 	EMPTY: "hover",
 } as const;
 

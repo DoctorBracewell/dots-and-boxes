@@ -25,7 +25,7 @@
 	}
 </script>
 
-{#key claimed}
+{#key claimedBy}
 	<div class="relative">
 		<div
 			class="box flex relative"
@@ -37,7 +37,7 @@
 			{#if claimedBy !== claimed.EMPTY}
 				<Background {claimedBy} />
 
-				<span class="m-auto z-10">
+				<span class="m-auto z-10 text-xl">
 					{labelMap[claimedBy]}
 				</span>
 			{/if}

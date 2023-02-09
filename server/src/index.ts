@@ -17,6 +17,12 @@ const fastify = Fastify({
 	},
 });
 
+// Disable CORS
+fastify.addHook("preHandler", async (req, res) => {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+});
+
 // Rate limit requests to 100 per minute
 await fastify.register(import("@fastify/rate-limit"), RATE_LIMITS);
 

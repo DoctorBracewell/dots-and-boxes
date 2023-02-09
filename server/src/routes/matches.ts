@@ -18,6 +18,11 @@ interface Querystring {
 	username?: string;
 }
 
+interface Match extends Body {
+	game_time: string;
+	id: string;
+}
+
 const route = basename(import.meta.url, ".js");
 
 export function setupRoutes(server: FastifyInstance) {
@@ -27,7 +32,7 @@ export function setupRoutes(server: FastifyInstance) {
 		const { username, result, board } = request.body;
 
 		await Surreal.Instance.query(
-			"CREATE game SET username = $username, result = $result, game_time = time::now()",
+			"CREATE game SET username = $username, result = $result, game_time = time::now(), board = $board",
 			{
 				username,
 				result,
@@ -42,7 +47,7 @@ export function setupRoutes(server: FastifyInstance) {
 		if (request.query.username ?? false) {
 			const { username } = request.query;
 
-			const matches = await Surreal.Instance.query(
+			const matches: Match[] = await Surreal.Instance.query(
 				"SELECT * FROM game WHERE username = $username",
 				{
 					username,
@@ -51,7 +56,9 @@ export function setupRoutes(server: FastifyInstance) {
 
 			return matches;
 		} else {
-			const matches = await Surreal.Instance.query("SELECT * FROM game");
+			const matches: Match[] = await Surreal.Instance.query(
+				"SELECT * FROM game"
+			);
 
 			return matches;
 		}

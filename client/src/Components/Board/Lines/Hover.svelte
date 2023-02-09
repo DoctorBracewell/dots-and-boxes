@@ -1,16 +1,20 @@
 <script lang="ts">
 	// Local Imports
 	import { gameState } from "../../../stores";
-	import { lineType, player, type LineType } from "../../../enums";
+	import {
+		lineType as lineTypeEnum,
+		player,
+		type LineType,
+	} from "../../../enums";
 
 	// Asset Imports
 	import vertical from "../../../imgs/game/hover/vertical.svg";
 	import horizontal from "../../../imgs/game/hover/horizontal.svg";
 
-	export let line: LineType;
+	export let lineType: LineType;
 
 	// Local Variables
-	const isHorizontal = line === lineType.HORIZONTAL;
+	const isHorizontal = lineType === lineTypeEnum.HORIZONTAL;
 </script>
 
 <div

@@ -24,10 +24,10 @@
 		>
 			<button
 				on:click={closeModal}
-				class="flex absolute top-2 right-2 text-gray-400 hover:text-gray-800 transition-colors"
+				class="flex absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors text-3xl"
 				>✗</button
 			>
-			<h2 class="m-auto text-2xl font-bold">{event}</h2>
+			<h2 class="m-auto text-4xl font-bold">{event}</h2>
 
 			<div class="flex-grow w-full mt-5">
 				{#if event === navigationEvent.SETTINGS}
@@ -37,7 +37,7 @@
 				{/if}
 			</div>
 
-			<div class="w-full flex-shrink flex mt-5">
+			<div class="w-full flex-shrink flex mt-5 text-2xl">
 				<button
 					class="sliding-underline sliding-underline-small m-auto"
 					on:click={closeModal}>OK</button
