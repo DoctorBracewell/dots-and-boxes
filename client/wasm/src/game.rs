@@ -14,6 +14,9 @@ use petgraph::dot::Dot;
 use petgraph::stable_graph::{StableGraph, StableUnGraph};
 use petgraph::Undirected;
 
+use rand::thread_rng;
+use rand::Rng;
+
 use super::utils::log;
 
 #[wasm_bindgen]
@@ -134,7 +137,7 @@ impl Game {
             // Remove edges from graph
             self.remove_edge(&game_box_indices);
 
-            if !any_box_claimed {
+            if !any_box_claimed || self.board_full() {
                 self.switch_player();
             }
 
@@ -231,11 +234,34 @@ impl Game {
 
         // log(&chains);
 
+        // determine if a particular edge is claimed
+        let mut rng = thread_rng();
+
+        let mut index = 0;
+        let mut line_type = LineType::Horizontal;
+        let mut is_claimed = self.get_edge(index, line_type).is_some();
+
+        while is_claimed {
+            line_type = match rng.gen_range(0..2) {
+                0 => LineType::Horizontal,
+                1 => LineType::Vertical,
+                _ => LineType::Horizontal,
+            };
+
+            index = rng.gen_range(0..30);
+
+            is_claimed = self.get_edge(index, line_type).is_some();
+        }
+
         // if chains.len() >= 1 {
         //     self.make_looney_move(chains)
         // } else {
-        //     self.switch_player();
-        TurnInformation::new(0, LineType::Horizontal, Box::new([]))
+        // self.switch_player();
+        TurnInformation::new(
+            index,
+            line_type,
+            self.interact_edge(index, line_type).into(),
+        )
         // }
 
         // let looney = self.is_looney(&chains);
@@ -244,7 +270,7 @@ impl Game {
         //     log("is looney");
         //     self.make_looney_move(chains);
         // } else {
-        //     // self.make_optimal_move(&chains);
+        //     self.make_optimal_move(&chains);
         // }
     }
 
@@ -335,53 +361,53 @@ impl Game {
                 == self.width * self.height
     }
 
-    // fn make_looney_move(&mut self, chains: Vec<Vec<NodeIndex>>) -> TurnInformation {
-    //     let shortest_chain = chains
-    //         .iter()
-    //         .reduce(|a, b| if a.len() > b.len() { a } else { b })
-    //         .unwrap();
+    fn make_looney_move(&mut self, chains: Vec<Vec<NodeIndex>>) -> TurnInformation {
+        let shortest_chain = chains
+            .iter()
+            .reduce(|a, b| if a.len() > b.len() { a } else { b })
+            .unwrap();
 
-    //     let length = shortest_chain.len();
+        let length = shortest_chain.len();
 
-    //     log(shortest_chain);
+        // log(shortest_chain);
 
-    //     let (node_1, node_2) = if chains.len() == 1 {
-    //         (shortest_chain[0], shortest_chain[1])
-    //     } else if length >= 4 {
-    //         (shortest_chain[0], shortest_chain[1])
-    //     } else {
-    //         (shortest_chain[length - 1], shortest_chain[length - 2])
-    //     };
+        let (node_1, node_2) = if chains.len() == 1 {
+            (shortest_chain[0], shortest_chain[1])
+        } else if length >= 4 {
+            (shortest_chain[0], shortest_chain[1])
+        } else {
+            (shortest_chain[length - 1], shortest_chain[length - 2])
+        };
 
-    //     log(node_1);
-    //     log(node_2);
+        // log(node_1);
+        // log(node_2);
 
-    //     let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
+        let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
 
-    //     TurnInformation::new(
-    //         index,
-    //         line_type,
-    //         self.interact_edge(index, line_type).into(),
-    //     )
-    // }
+        TurnInformation::new(
+            index,
+            line_type,
+            self.interact_edge(index, line_type).into(),
+        )
+    }
 
-    // fn graph_edge_to_board(&self, node_1: NodeIndex, node_2: NodeIndex) -> (usize, LineType) {
-    //     let edge = self.graph.find_edge(node_1, node_2).unwrap().index();
-    //     let horizontal_edge_count = self.width * (self.height + 1);
+    fn graph_edge_to_board(&self, node_1: NodeIndex, node_2: NodeIndex) -> (usize, LineType) {
+        let edge = self.graph.find_edge(node_1, node_2).unwrap().index();
+        let horizontal_edge_count = self.width * (self.height + 1);
 
-    //     let line_type = if edge <= horizontal_edge_count - 1 {
-    //         LineType::Horizontal
-    //     } else {
-    //         LineType::Vertical
-    //     };
+        let line_type = if edge <= horizontal_edge_count - 1 {
+            LineType::Horizontal
+        } else {
+            LineType::Vertical
+        };
 
-    //     let line_index = match line_type {
-    //         Horizontal => edge,
-    //         Vertical => edge - horizontal_edge_count,
-    //     };
+        let line_index = match line_type {
+            Horizontal => edge,
+            Vertical => edge - horizontal_edge_count,
+        };
 
-    //     (line_index, line_type)
-    // }
+        (line_index, line_type)
+    }
 }
 
 // Setters & Getters
@@ -447,6 +473,12 @@ impl Game {
             Player::User => Player::Computer,
             Player::Computer => Player::User,
         }
+    }
+
+    pub fn board_full(&mut self) -> bool {
+        self.board
+            .iter()
+            .all(|row| row.iter().all(|game_box| game_box.claimed.is_some()))
     }
 
     pub fn count_boxes(&self, player: Player) -> usize {

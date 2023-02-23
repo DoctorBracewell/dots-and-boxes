@@ -3,6 +3,7 @@ import { PORT, RATE_LIMITS } from "./constants.js";
 import surrealInit from "./database.js";
 import * as dotenv from "dotenv";
 import { readdir } from "fs/promises";
+import cors from "@fastify/cors";
 
 // Load environment variables and connect to database
 await dotenv.config();
@@ -18,9 +19,8 @@ const fastify = Fastify({
 });
 
 // Disable CORS
-fastify.addHook("preHandler", async (req, res) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+await fastify.register(cors, {
+	origin: "*",
 });
 
 // Rate limit requests to 100 per minute

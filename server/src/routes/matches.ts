@@ -25,11 +25,25 @@ interface Match extends Body {
 
 const route = basename(import.meta.url, ".js");
 
+// Validate a username
+function validUsername(username: string): boolean {
+	const checks = [
+		username.length >= 1,
+		username.length <= 20,
+		/^[a-zA-Z0-9_]+$/.test(username),
+	];
+
+	return checks.every((check) => check);
+}
+
 export function setupRoutes(server: FastifyInstance) {
 	server.post<{
 		Body: Body;
-	}>(`/${route}`, async (request) => {
+	}>(`/${route}`, async (request, response) => {
 		const { username, result, board } = request.body;
+
+		if (!validUsername(username))
+			return response.status(400).send("Invalid username length");
 
 		await Surreal.Instance.query(
 			"CREATE game SET username = $username, result = $result, game_time = time::now(), board = $board",
@@ -47,12 +61,13 @@ export function setupRoutes(server: FastifyInstance) {
 		if (request.query.username ?? false) {
 			const { username } = request.query;
 
-			const matches: Match[] = await Surreal.Instance.query(
-				"SELECT * FROM game WHERE username = $username",
-				{
-					username,
-				}
-			);
+			const matches: Match[] =
+				(await Surreal.Instance.query(
+					"SELECT * FROM game WHERE username = $username",
+					{
+						username,
+					}
+				)) || [];
 
 			return matches;
 		} else {

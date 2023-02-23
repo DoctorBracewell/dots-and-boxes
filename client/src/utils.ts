@@ -4,3 +4,17 @@ export function* range(start: number, end: number): Generator<number> {
 		yield i;
 	}
 }
+
+// Validate a username
+export function checkUsername(username: string) {
+	const checks = [
+		{ check: username.length >= 1, string: "Username too short" },
+		{ check: username.length <= 20, string: "Username too long" },
+		{
+			check: /^[a-zA-Z0-9_]+$/.test(username),
+			string: "Username uses invalid characters",
+		},
+	];
+
+	return checks.filter((check) => !check.check);
+}

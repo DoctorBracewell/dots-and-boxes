@@ -20,7 +20,7 @@
 		transition:fade={{ duration: 150 }}
 	>
 		<div
-			class="relative min-w-[40%] rounded-md p-6 flex flex-col pointer-events-auto bg-white"
+			class="relative min-w-[40%] max-h-[60%] rounded-md p-6 flex flex-col pointer-events-auto bg-white"
 		>
 			<button
 				on:click={closeModal}
@@ -29,7 +29,7 @@
 			>
 			<h2 class="m-auto text-4xl font-bold">{event}</h2>
 
-			<div class="flex-grow w-full mt-5">
+			<div class="flex-grow w-full mt-5 max-h-[300px]">
 				{#if event === navigationEvent.SETTINGS}
 					<Settings />
 				{:else if event === navigationEvent.LEADERBOARD}
