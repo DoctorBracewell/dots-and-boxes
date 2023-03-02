@@ -1,10 +1,8 @@
 <script lang="ts">
-	// Local Imports
-	import { settings } from "../../stores";
-	import { claimed, type Claimed } from "../../enums";
-
-	// Module Imports
 	import { fade } from "svelte/transition";
+
+	import { type Claimed, claimed } from "../../enums";
+	import { settings } from "../../stores";
 
 	// External Props
 	export let claimedBy: Claimed;
@@ -26,7 +24,7 @@
 	xmlns="http://www.w3.org/2000/svg"
 	version="1.1"
 	viewBox="7.28 7.34 130.04 131.98"
-	class="w-full h-full absolute"
+	class="absolute h-full w-full"
 	in:fade={{ duration: 400 }}
 >
 	<g stroke-linecap="round" transform="matrix(1,0,0,1,10,10)"

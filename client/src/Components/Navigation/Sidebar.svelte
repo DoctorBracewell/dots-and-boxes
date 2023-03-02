@@ -1,9 +1,9 @@
 <script lang="ts">
 	// Local Imports
-	import { navigationEvent } from "../../enums";
-
 	// Component Imports
 	import Button from "./Button.svelte";
+
+	import { navigationEvent } from "../../enums";
 </script>
 
 <nav class="absolute right-[2.95em] top-[2.95em]">

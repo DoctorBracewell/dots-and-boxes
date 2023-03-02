@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { difficulty } from "../../enums";
-	import { settings, game } from "../../stores";
+	import { game, settings } from "../../stores";
 
 	const handleClick = (event: Event) => {
 		$settings.difficulty = difficulty[(event.target as HTMLInputElement).value];
@@ -10,7 +10,7 @@
 <div class="flex flex-col justify-between gap-5 text-xl">
 	<div class="difficulty flex">
 		<span class="flex-shrink">Difficulty:</span>
-		<div class="inline-flex flex-grow gap-3 w-full justify-center">
+		<div class="inline-flex w-full flex-grow justify-center gap-3">
 			{#each Object.entries(difficulty) as [key, value], index}
 				<div class="inline-block">
 					<input
@@ -20,11 +20,11 @@
 						checked={$settings.difficulty === value}
 						value={key}
 						id={key}
-						class="hidden peer"
+						class="peer hidden"
 					/>
 					<label
 						for={key}
-						class="transition-colors cursor-pointer sliding-underline sliding-underline-small peer-checked:after:w-0"
+						class="sliding-underline sliding-underline-small cursor-pointer transition-colors peer-checked:after:w-0"
 						>{value}</label
 					>
 				</div>
@@ -38,15 +38,15 @@
 
 	<div class="colours flex">
 		<span class="flex-shrink">Colours:</span>
-		<div class="inline-flex flex-grow gap-3 w-full justify-center">
+		<div class=" inline-flex w-full flex-grow justify-center gap-3">
 			<input
-				class="bg-transparent rounded-md"
+				class="rounded-md bg-transparent"
 				type="color"
 				bind:value={$settings.colours.user}
 			/>
 			<span>│</span>
 			<input
-				class="bg-transparent rounded-md"
+				class="rounded-md bg-transparent"
 				type="color"
 				bind:value={$settings.colours.computer}
 			/>

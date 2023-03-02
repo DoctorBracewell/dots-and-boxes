@@ -1,9 +1,7 @@
 <script lang="ts">
-	// Component Imports
 	import Background from "./Background.svelte";
 
-	// Local Imports
-	import { claimed, translateClaimed, type Claimed } from "../../enums";
+	import { type Claimed, claimed, translateClaimed } from "../../enums";
 	import { game, gameState } from "../../stores";
 
 	// External Props
@@ -28,7 +26,7 @@
 {#key claimedBy}
 	<div class="relative">
 		<div
-			class="box flex relative"
+			class="box relative flex"
 			style="
 			width: {average}rem;
 			height: {average}rem;
@@ -37,10 +35,13 @@
 			{#if claimedBy !== claimed.EMPTY}
 				<Background {claimedBy} />
 
-				<span class="m-auto z-10 text-xl">
-					{labelMap[claimedBy]}
+				<span class="z-10 m-auto text-xl">
+					<!-- {labelMap[claimedBy]} -->
 				</span>
 			{/if}
+			<span class="z-10 m-auto text-xl">
+				{y * 5 + x + 1}
+			</span>
 		</div>
 	</div>
 {/key}

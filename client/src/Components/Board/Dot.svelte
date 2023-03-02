@@ -1,8 +1,6 @@
 <script lang="ts">
-	// Module Imports
 	import random from "lodash/random";
 
-	// Asset Imports
 	import dotURL from "../../imgs/game/dot.svg";
 
 	// External Props
@@ -19,7 +17,7 @@
 		"
 	>
 		<img
-			class="absolute w-[2em] h-[2em] top-[-1em] left-[-1em] z-[45] select-none"
+			class="absolute top-[-1em] left-[-1em] z-[45] h-[2em] w-[2em] select-none"
 			style="transform: rotate({random(360)}deg);"
 			src={dotURL}
 			alt=""

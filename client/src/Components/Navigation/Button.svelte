@@ -1,9 +1,9 @@
 <script lang="ts">
 	// Local Imports
-	import type { NavigationEvent } from "../../enums";
-
 	// Module Imports
 	import { createEventDispatcher } from "svelte";
+
+	import type { NavigationEvent } from "../../enums";
 
 	// External Props
 	export let label: NavigationEvent;
@@ -15,6 +15,6 @@
 
 <button
 	on:click={handleClick}
-	class="bg-none p-0 m-0 border-none sliding-underline sliding-underline-medium"
+	class="sliding-underline sliding-underline-medium m-0 border-none bg-none p-0"
 	>{label}</button
 >

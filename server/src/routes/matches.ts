@@ -26,23 +26,33 @@ interface Match extends Body {
 const route = basename(import.meta.url, ".js");
 
 // Validate a username
-function validUsername(username: string): boolean {
+export function checkUsername(username: string) {
 	const checks = [
-		username.length >= 1,
-		username.length <= 20,
-		/^[a-zA-Z0-9_]+$/.test(username),
+		{ check: username.length >= 1, string: "Username too short" },
+		{ check: username.length <= 20, string: "Username too long" },
+		{
+			check: /^[a-zA-Z0-9_]+$/.test(username),
+			string: "Username uses invalid characters",
+		},
 	];
 
-	return checks.every((check) => check);
+	return checks.filter((check) => !check.check);
 }
+
 
 export function setupRoutes(server: FastifyInstance) {
 	server.post<{
 		Body: Body;
 	}>(`/${route}`, async (request, response) => {
 		const { username, result, board } = request.body;
+		const failedChecks = checkUsername(username);
 
-		if (!validUsername(username))
+		if (failedChecks.length > 0) {
+			return response.status(400).send(`${failedChecks.map((c) => c.string).join(".\n")}`);
+		}
+
+
+		if (!checkUsername(username))
 			return response.status(400).send("Invalid username length");
 
 		await Surreal.Instance.query(

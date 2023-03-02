@@ -1,25 +1,22 @@
 <script lang="ts">
-	// Component Imports
-	import Horizontal from "./Horizontal.svelte";
-	import Vertical from "./Vertical.svelte";
-	import Hover from "./Hover.svelte";
+	import chunk from "lodash/chunk";
+	import { createEventDispatcher } from "svelte";
 
-	// Local Imports
+	import Horizontal from "./Horizontal.svelte";
+	import Hover from "./Hover.svelte";
+	import Vertical from "./Vertical.svelte";
+
 	import {
-		claimed,
-		player,
-		lineType as lineTypeEnum,
-		mapEnum,
-		translateClaimed,
 		type Claimed,
 		type LineType,
+		claimed,
+		lineType as lineTypeEnum,
+		mapEnum,
+		player,
+		translateClaimed,
 		translateNumber,
 	} from "../../../enums";
 	import { game, gameState, settings } from "../../../stores";
-
-	// Module Imports
-	import { createEventDispatcher } from "svelte";
-	import chunk from "lodash/chunk";
 
 	// External Props
 	export let average: number;
@@ -102,10 +99,12 @@
 			if ($game.board_full()) {
 				return dispatch("gameend");
 			}
+
+			// $game.switch_player();
 		}
 
 		// Update the current player
-		$gameState.currentPlayer = translateNumber(player, $game.current_player);
+		// $gameState.currentPlayer = translateNumber(player, $game.current_player);
 
 		// Check for game over
 	};
@@ -135,7 +134,7 @@
 
 {#key affected}
 	<div
-		class="flex bg-transparent line"
+		class="line flex bg-transparent"
 		title="line"
 		style="
 		width: {average}em;
@@ -147,11 +146,11 @@
 		{#if lineClaimed === claimed.EMPTY}
 			<Hover {lineType} />
 		{:else if lineType === lineTypeEnum.HORIZONTAL}
-			<div class="w-full h-4 z-40 -mt-2">
+			<div class="z-40 -mt-2 h-4 w-full">
 				<Horizontal stroke={colour} />
 			</div>
 		{:else if lineType === lineTypeEnum.VERTICAL}
-			<div class="h-full w-8 z-40 -ml-4">
+			<div class="z-40 -ml-4 h-full w-8">
 				<Vertical stroke={colour} />
 			</div>
 		{/if}

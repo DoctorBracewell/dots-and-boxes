@@ -11,13 +11,15 @@ use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 
 use petgraph::dot::Dot;
-use petgraph::stable_graph::{StableGraph, StableUnGraph};
-use petgraph::Undirected;
+use petgraph::stable_graph::{GraphIndex, StableGraph, StableUnGraph};
+use petgraph::{Graph, Undirected};
 
 use rand::thread_rng;
 use rand::Rng;
 
 use super::utils::log;
+
+type BoxCollection = Vec<Vec<NodeIndex>>;
 
 #[wasm_bindgen]
 pub struct Game {
@@ -41,7 +43,7 @@ impl Game {
 
         let board = Game::generate_board(height, width);
         let mut graph: StableUnGraph<GraphNode, ()> = StableGraph::default();
-        let mut boxes: Vec<Vec<NodeIndex>> = vec![];
+        let mut boxes: BoxCollection = vec![];
 
         let ground = graph.add_node(GraphNode::Ground);
 
@@ -91,7 +93,6 @@ impl Game {
 
         // Output graph in DOT format
         // log(Dot::new(&graph));
-        // log(graph.edge_count());
 
         Self {
             height,
@@ -135,7 +136,7 @@ impl Game {
             let any_box_claimed = self.claim_boxes(&game_box_indices);
 
             // Remove edges from graph
-            self.remove_edge(&game_box_indices);
+            self.remove_edge(&game_box_indices, line_type);
 
             if !any_box_claimed || self.board_full() {
                 self.switch_player();
@@ -157,7 +158,7 @@ impl Game {
         Uint32Array::from(&self.interact_edge(index, line_type)[..])
     }
 
-    fn remove_edge(&mut self, indices: &GameBoxIndices) {
+    fn remove_edge(&mut self, indices: &GameBoxIndices, line_type: LineType) {
         let a = (indices[0][0] * self.width + indices[0][1]) + 1;
         let b = match indices.get(1) {
             Some(index) => (index[0] * self.width + index[1]) + 1,
@@ -165,8 +166,27 @@ impl Game {
         };
 
         let (node_one, node_two) = (NodeIndex::new(a), NodeIndex::new(b));
+        let mut edge_to_remove = self.graph.find_edge(node_one, node_two).unwrap();
 
-        let edge_to_remove = self.graph.find_edge(node_one, node_two).unwrap();
+        // Check if a or b are corner boxes
+        edge_to_remove = if b == 0
+            && matches!(line_type, LineType::Horizontal)
+            && self.graph.edges_connecting(node_one, node_two).count() > 1
+        {
+            if a == 1 {
+                EdgeIndex::new(edge_to_remove.index() - self.width * (self.height + 1))
+            } else if a == self.width {
+                EdgeIndex::new(edge_to_remove.index() - self.width * (self.height + 1) - 1)
+            } else if a == self.width * self.height {
+                EdgeIndex::new(edge_to_remove.index() - self.width * (self.height + 1))
+            } else if a == self.width * self.height - self.width + 1 {
+                EdgeIndex::new(edge_to_remove.index() - self.width * (self.height + 1) + 1)
+            } else {
+                edge_to_remove
+            }
+        } else {
+            edge_to_remove
+        };
 
         self.graph.remove_edge(edge_to_remove);
     }
@@ -222,62 +242,151 @@ impl Game {
     }
 
     pub fn computer_turn(&mut self) -> TurnInformation {
-        self.play_optimal_move()
+        self.determine_optimal_move()
     }
 }
 
 // Optimal-Play algorithm
-#[wasm_bindgen]
 impl Game {
-    fn play_optimal_move(&mut self) -> TurnInformation {
+    fn determine_optimal_move(&mut self) -> TurnInformation {
         let chains = self.count_chains();
+        let tubes = self.count_tubes();
 
-        // log(&chains);
+        log(format!("chains: {:?}", &chains));
+        log(format!("tubes: {:?}", &tubes));
 
-        // determine if a particular edge is claimed
-        let mut rng = thread_rng();
+        if self.is_looney(&chains, &tubes) {
+            log("looney");
+            self.make_looney_move(chains)
+        } else if chains.len() > 0 {
+            log("chains");
+            self.make_claiming_move(chains)
+        } else if self.is_quasi_looney(&chains, &tubes) {
+            log("quasi looney");
+            self.make_claiming_move(tubes)
+        } else {
+            // self.switch_player();
+            // TurnInformation::new(0, LineType::Horizontal, Box::new([]))
 
-        let mut index = 0;
-        let mut line_type = LineType::Horizontal;
-        let mut is_claimed = self.get_edge(index, line_type).is_some();
+            // Generate a random valid move from the existing edges
+            let mut rng = rand::thread_rng();
+            let mut index = 0;
+            let mut line_type = LineType::Horizontal;
 
-        while is_claimed {
-            line_type = match rng.gen_range(0..2) {
-                0 => LineType::Horizontal,
-                1 => LineType::Vertical,
-                _ => LineType::Horizontal,
-            };
+            while self.get_edge(index, line_type).is_some() {
+                index = rng.gen_range(0..(self.width * self.height));
+                // get random value from the LineType enum
+                line_type = match rng.gen_range(0..2) {
+                    0 => LineType::Horizontal,
+                    _ => LineType::Vertical,
+                };
+            }
 
-            index = rng.gen_range(0..30);
-
-            is_claimed = self.get_edge(index, line_type).is_some();
+            TurnInformation::new(
+                index,
+                line_type,
+                self.interact_edge(index, line_type).into(),
+            )
         }
+    }
 
-        // if chains.len() >= 1 {
-        //     self.make_looney_move(chains)
-        // } else {
-        // self.switch_player();
+    fn is_looney(&self, chains: &BoxCollection, tubes: &BoxCollection) -> bool {
+        let filtered_chains = self.remove_duplicates(chains);
+        let filtered_tubes = self.remove_duplicates(tubes);
+
+        let box_count = filtered_chains
+            .iter()
+            .chain(filtered_tubes.iter())
+            .flatten()
+            .count();
+
+        filtered_chains.len() == 1 && box_count == self.count_open_boxes()
+    }
+
+    fn is_quasi_looney(&self, chains: &BoxCollection, tubes: &BoxCollection) -> bool {
+        let filtered_tubes = self.remove_duplicates(tubes);
+
+        let box_count = filtered_tubes.iter().flatten().count();
+
+        chains.len() == 0 && box_count == self.count_open_boxes()
+    }
+
+    fn make_looney_move(&mut self, chains: BoxCollection) -> TurnInformation {
+        let sole_chain = &chains[0];
+        let length = sole_chain.len();
+
+        // End of looped chain, quadruple cross
+        let (node_1, node_2) = if length == 4
+            && !matches!(
+                self.graph.node_weight(sole_chain[length - 1]).unwrap(),
+                GraphNode::Ground,
+            )
+            && self.count_open_boxes() != 4
+        {
+            (sole_chain[1], sole_chain[2])
+        }
+        // End of singular chain, double cross
+        else if length > 3 || self.count_open_boxes() == 2 {
+            (sole_chain[0], sole_chain[1])
+        }
+        // Singular chain, claim box
+        else {
+            (sole_chain[length - 1], sole_chain[length - 2])
+        };
+
+        let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
+
         TurnInformation::new(
             index,
             line_type,
             self.interact_edge(index, line_type).into(),
         )
-        // }
-
-        // let looney = self.is_looney(&chains);
-
-        // if looney {
-        //     log("is looney");
-        //     self.make_looney_move(chains);
-        // } else {
-        //     self.make_optimal_move(&chains);
-        // }
     }
 
-    fn count_chains(&self) -> Vec<Vec<NodeIndex>> {
+    fn make_claiming_move(&mut self, collections: BoxCollection) -> TurnInformation {
+        let shortest_collection = collections
+            .iter()
+            .reduce(|acc, cur| if acc.len() > cur.len() { cur } else { acc })
+            .unwrap();
+
+        // let length = shortest_chain.len();
+
+        let (node_1, node_2) = (shortest_collection[0], shortest_collection[1]);
+
+        let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
+
+        TurnInformation::new(
+            index,
+            line_type,
+            self.interact_edge(index, line_type).into(),
+        )
+    }
+
+    fn graph_edge_to_board(&self, node_1: NodeIndex, node_2: NodeIndex) -> (usize, LineType) {
+        let edge = self.graph.find_edge(node_1, node_2).unwrap().index();
+        let horizontal_edge_count = self.width * (self.height + 1);
+
+        let line_type = if edge <= horizontal_edge_count - 1 {
+            LineType::Horizontal
+        } else {
+            LineType::Vertical
+        };
+
+        let line_index = match line_type {
+            Horizontal => edge,
+            Vertical => edge - horizontal_edge_count,
+        };
+
+        (line_index, line_type)
+    }
+}
+
+// Chains
+impl Game {
+    fn count_chains(&self) -> BoxCollection {
         // Initialise vectors to track chains and visited boxes
         let mut visited_nodes: Vec<NodeIndex> = vec![];
-        let mut chains: Vec<Vec<NodeIndex>> = vec![];
+        let mut chains: BoxCollection = vec![];
 
         // Iterate over all boxes
         for node in self.graph.node_indices().skip(1) {
@@ -287,7 +396,10 @@ impl Game {
 
                 // If a chain is found, add it to the list of chains and append all of its boxes to visited nodes
                 if chain.len() != 0 {
-                    visited_nodes.extend(chain.iter());
+                    visited_nodes.extend(chain.iter().filter(|&b| {
+                        !matches!(self.graph.node_weight(*b).unwrap(), GraphNode::Ground)
+                    }));
+
                     chains.push(chain);
                 }
             }
@@ -350,63 +462,126 @@ impl Game {
 
         self.continue_chain(*next_node, chain, visited_nodes);
     }
+}
 
-    fn is_looney(&self, chains: &Vec<Vec<NodeIndex>>) -> bool {
-        chains.iter().all(|chain| chain.len() >= 3)
-            && chains
-                .into_iter()
-                .flatten()
-                .collect::<Vec<&NodeIndex>>()
-                .len()
-                == self.width * self.height
+// Tubes
+impl Game {
+    fn count_tubes(&self) -> BoxCollection {
+        // Initialise vectors to track tubes and visited boxes
+        let mut visited_nodes: Vec<NodeIndex> = vec![];
+        let mut tubes: BoxCollection = vec![];
+
+        // Iterate over all nodes except the ground
+        for node in self.graph.node_indices().skip(1) {
+            // Do not start tubes from boxes that have already been visited
+            if !visited_nodes.contains(&node) {
+                let tube = self.start_tube(node, &visited_nodes);
+
+                // If a tube is found, add it to the list of tubes and append all of its boxes to visited nodes
+                if tube.len() != 0 {
+                    visited_nodes.extend(tube.iter().filter(|&b| {
+                        !matches!(self.graph.node_weight(*b).unwrap(), GraphNode::Ground)
+                    }));
+
+                    tubes.push(tube);
+                }
+            }
+        }
+
+        tubes
     }
 
-    fn make_looney_move(&mut self, chains: Vec<Vec<NodeIndex>>) -> TurnInformation {
-        let shortest_chain = chains
+    fn start_tube(
+        &self,
+        current_node: NodeIndex,
+        visited_nodes: &Vec<NodeIndex>,
+    ) -> Vec<NodeIndex> {
+        let mut tube: Vec<NodeIndex> = vec![];
+        let mut neighbours: Vec<NodeIndex> = self.graph.neighbors(current_node).collect();
+
+        // Sort so ground nodes are last
+        neighbours.sort_unstable();
+        neighbours.reverse();
+
+        let ground_neighbour = neighbours
             .iter()
-            .reduce(|a, b| if a.len() > b.len() { a } else { b })
+            .by_ref()
+            .find(|node| matches!(self.graph.node_weight(**node).unwrap(), GraphNode::Ground));
+
+        // Continue the tube if the starting box has 2 neighbours
+        if neighbours.len() == 2 {
+            // If the starting box is connected to ground, add it to the tube
+            if ground_neighbour.is_some() {
+                tube.push(*ground_neighbour.unwrap());
+            }
+
+            // Otherwise continue the tube
+            tube.push(current_node);
+
+            self.continue_tube(neighbours[0], &mut tube, visited_nodes);
+        }
+
+        if tube.len() >= 2 && !tube.ends_with(&[tube[0]]) {
+            tube.clear();
+        }
+
+        return tube;
+    }
+
+    fn continue_tube(
+        &self,
+        current_node: NodeIndex,
+        tube: &mut Vec<NodeIndex>,
+        visited_nodes: &Vec<NodeIndex>,
+    ) {
+        let neighbors: Vec<NodeIndex> = self.graph.neighbors(current_node).collect();
+        let neighbors_length = neighbors.len();
+
+        // If the current node is ground, add it to the tube and return
+        if matches!(
+            self.graph.node_weight(current_node).unwrap(),
+            GraphNode::Ground
+        ) && tube.len() > 2
+        {
+            tube.push(current_node);
+            return;
+        }
+
+        if tube.len() >= 3 && neighbors.contains(&tube[0]) {
+            tube.push(current_node);
+            tube.push(tube[0]);
+            return;
+        }
+
+        if neighbors_length > 2 {
+            tube.push(current_node);
+            return;
+        }
+
+        if neighbors.iter().any(|node| visited_nodes.contains(&node)) {
+            tube.clear();
+            return;
+        }
+
+        tube.push(current_node);
+
+        if neighbors_length == 1 {
+            return;
+        }
+
+        let next_node = neighbors
+            .iter()
+            .filter(|node| {
+                !tube
+                    .iter()
+                    .filter(|n| **n != NodeIndex::new(0))
+                    .collect::<Vec<&NodeIndex>>()
+                    .contains(node)
+            })
+            .next()
             .unwrap();
 
-        let length = shortest_chain.len();
-
-        // log(shortest_chain);
-
-        let (node_1, node_2) = if chains.len() == 1 {
-            (shortest_chain[0], shortest_chain[1])
-        } else if length >= 4 {
-            (shortest_chain[0], shortest_chain[1])
-        } else {
-            (shortest_chain[length - 1], shortest_chain[length - 2])
-        };
-
-        // log(node_1);
-        // log(node_2);
-
-        let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
-
-        TurnInformation::new(
-            index,
-            line_type,
-            self.interact_edge(index, line_type).into(),
-        )
-    }
-
-    fn graph_edge_to_board(&self, node_1: NodeIndex, node_2: NodeIndex) -> (usize, LineType) {
-        let edge = self.graph.find_edge(node_1, node_2).unwrap().index();
-        let horizontal_edge_count = self.width * (self.height + 1);
-
-        let line_type = if edge <= horizontal_edge_count - 1 {
-            LineType::Horizontal
-        } else {
-            LineType::Vertical
-        };
-
-        let line_index = match line_type {
-            Horizontal => edge,
-            Vertical => edge - horizontal_edge_count,
-        };
-
-        (line_index, line_type)
+        self.continue_tube(*next_node, tube, visited_nodes);
     }
 }
 
@@ -504,6 +679,21 @@ impl Game {
         count
     }
 
+    pub fn count_open_boxes(&self) -> usize {
+        let mut count = 0;
+
+        for row in &self.board {
+            for game_box in row {
+                count += match game_box.claimed {
+                    Some(_) => 0,
+                    None => 1,
+                }
+            }
+        }
+
+        count
+    }
+
     fn edge_type(&self, index: usize, line_type: &LineType) -> EdgeType {
         match line_type {
             LineType::Horizontal => {
@@ -525,6 +715,27 @@ impl Game {
                 }
             }
         }
+    }
+
+    fn remove_duplicates<'a>(&'a self, structure: &'a BoxCollection) -> Vec<Vec<&'a NodeIndex>> {
+        // Remove duplicate items from the structure vector
+        let mut unique_structure: Vec<Vec<&NodeIndex>> = vec![];
+
+        for chain in structure {
+            let mut unique_chain: Vec<&NodeIndex> = vec![];
+
+            for node in chain {
+                if !matches!(self.graph.node_weight(*node).unwrap(), GraphNode::Ground)
+                    && !unique_chain.contains(&node)
+                {
+                    unique_chain.push(node);
+                }
+            }
+
+            unique_structure.push(unique_chain);
+        }
+
+        unique_structure
     }
 
     #[cfg(debug_assertions)]

@@ -1,18 +1,15 @@
 <script lang="ts">
-	// Component Imports
+	import chunk from "lodash/chunk";
+
 	import Box from "./Box.svelte";
-	import Line from "./Lines/Line.svelte";
 	import Dot from "./Dot.svelte";
+	import Line from "./Lines/Line.svelte";
 	import Score from "./Score.svelte";
 
-	// Local Imports
+	import { PORT, URL } from "../../constants";
 	import { lineType, mapEnum, player } from "../../enums";
 	import { game, gameState } from "../../stores";
 	import { checkUsername, range } from "../../utils";
-	import { URL, PORT } from "../../constants";
-
-	// Module Imports
-	import chunk from "lodash/chunk";
 
 	interface Body {
 		username: string;
@@ -49,6 +46,9 @@
 		const username = prompt("Please enter your name:");
 		const failedChecks = checkUsername(username);
 
+		// Cancelled
+		if (username === null) return;
+
 		if (failedChecks.length > 0) {
 			alert(
 				`${failedChecks.map((c) => c.string).join(".\n")}.\n\nPlease try again!`
@@ -80,14 +80,14 @@
 	// $game.print_board();
 </script>
 
-<main class="w-full h-full bg-transparent relative flex flex-col select-none">
+<main class="relative flex h-full w-full select-none flex-col bg-transparent">
 	{#key $gameState.affectedBoxes}
 		<div class="score mx-auto mb-5 md:mb-6">
 			<Score />
 		</div>
 	{/key}
 
-	<div class="relative m-auto h-full flex flex-col">
+	<div class="relative m-auto flex h-full flex-col">
 		<div class="m-auto">
 			{#each [...range(0, height)] as y}
 				<div class="flex">
@@ -99,7 +99,7 @@
 		</div>
 
 		<!-- Create horizontal edges -->
-		<div class="absolute horizontal-edges">
+		<div class="horizontal-edges absolute">
 			{#each chunk([...range(0, horizontalEdges)], $game.width) as row}
 				<div class="flex">
 					{#each row as index}
@@ -115,7 +115,7 @@
 		</div>
 
 		<!-- Create vertical edges -->
-		<div class="absolute vertical-edges">
+		<div class="vertical-edges absolute">
 			{#each chunk([...range(0, verticalEdges)], $game.height + 1) as row}
 				<div class="flex">
 					{#each row as index}
@@ -131,7 +131,7 @@
 		</div>
 
 		<!-- Create dots -->
-		<div class="absolute dots">
+		<div class="dots absolute">
 			{#each chunk([...range(0, (width + 1) * (height + 1))], $game.width + 1) as row}
 				<div class="flex">
 					{#each row as _}
