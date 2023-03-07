@@ -60,7 +60,7 @@
 			$game.handle_edge_interact(index, mapEnum(lineTypeEnum, lineType))
 		);
 
-		// Check for game over
+		/* Check for game over */
 		if ($game.board_full()) {
 			return dispatch("gameend");
 		}
@@ -99,14 +99,7 @@
 			if ($game.board_full()) {
 				return dispatch("gameend");
 			}
-
-			// $game.switch_player();
 		}
-
-		// Update the current player
-		// $gameState.currentPlayer = translateNumber(player, $game.current_player);
-
-		// Check for game over
 	};
 
 	// Update the line if the store updates (triggered by a computer turn)

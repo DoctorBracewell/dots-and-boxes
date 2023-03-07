@@ -37,7 +37,9 @@
 	$: filteredMatches =
 		search.length === 0
 			? matches
-			: matches.filter((match) => match.username.includes(search));
+			: matches.filter((match) =>
+					match.username.toLowerCase().includes(search)
+			  );
 </script>
 
 <div>

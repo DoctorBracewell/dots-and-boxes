@@ -23,17 +23,17 @@ interface Settings {
 	};
 }
 
-interface GameState {
-	affectedBoxes: number[][];
-	affectedLines: [number, LineType][];
-	currentPlayer: Player;
-}
-
 /*
  * Initialise and export the WASM module as a store
  */
 await init();
 export const game = writable<Game>(new Game(5, 5));
+
+interface GameState {
+	affectedBoxes: number[][];
+	affectedLines: [number, LineType][];
+	currentPlayer: Player;
+}
 
 /**
  * Global game state

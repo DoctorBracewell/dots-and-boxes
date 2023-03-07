@@ -1,6 +1,4 @@
 <script lang="ts">
-	// Local Imports
-	// Module Imports
 	import { createEventDispatcher } from "svelte";
 
 	import type { NavigationEvent } from "../../enums";

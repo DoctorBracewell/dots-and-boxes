@@ -14,6 +14,7 @@ use petgraph::dot::Dot;
 use petgraph::stable_graph::{GraphIndex, StableGraph, StableUnGraph};
 use petgraph::{Graph, Undirected};
 
+use rand::seq::SliceRandom;
 use rand::thread_rng;
 use rand::Rng;
 
@@ -252,8 +253,8 @@ impl Game {
         let chains = self.count_chains();
         let tubes = self.count_tubes();
 
-        log(format!("chains: {:?}", &chains));
-        log(format!("tubes: {:?}", &tubes));
+        // log(format!("chains: {:?}", &chains));
+        // log(format!("tubes: {:?}", &tubes));
 
         if self.is_looney(&chains, &tubes) {
             log("looney");
@@ -268,8 +269,51 @@ impl Game {
             // self.switch_player();
             // TurnInformation::new(0, LineType::Horizontal, Box::new([]))
 
-            // Generate a random valid move from the existing edges
+            let mut moves: Vec<(usize, LineType)> = vec![];
+
+            for i in 0..2 {
+                let line_type = match i {
+                    0 => LineType::Horizontal,
+                    _ => LineType::Vertical,
+                };
+
+                let line_count = match line_type {
+                    LineType::Horizontal => self.horizontal_edges.len(),
+                    LineType::Vertical => self.vertical_edges.len(),
+                };
+
+                for index in 0..line_count {
+                    if self.get_edge(index, line_type).is_none() {
+                        let affected_boxes = self.affected_boxes(index, &line_type);
+                        let affected_boxes_edges: Vec<usize> = affected_boxes
+                            .iter()
+                            .map(|[y, x]| {
+                                self.board[*y][*x]
+                                    .edge_count(&self.vertical_edges, &self.horizontal_edges)
+                            })
+                            .collect();
+
+                        if !affected_boxes_edges.iter().any(|&x| x == 2) {
+                            moves.push((index, line_type));
+                        }
+                    }
+                }
+            }
+
             let mut rng = rand::thread_rng();
+
+            if moves.len() != 0 {
+                let (index, line_type) = *moves.choose(&mut rng).unwrap();
+
+                return TurnInformation::new(
+                    index,
+                    line_type,
+                    self.interact_edge(index, line_type).into(),
+                );
+            }
+
+            // Generate a random valid move from the existing edges
+            log("unavoidable");
             let mut index = 0;
             let mut line_type = LineType::Horizontal;
 

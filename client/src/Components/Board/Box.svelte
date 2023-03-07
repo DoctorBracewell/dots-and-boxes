@@ -36,12 +36,9 @@
 				<Background {claimedBy} />
 
 				<span class="z-10 m-auto text-xl">
-					<!-- {labelMap[claimedBy]} -->
+					{labelMap[claimedBy]}
 				</span>
 			{/if}
-			<span class="z-10 m-auto text-xl">
-				{y * 5 + x + 1}
-			</span>
 		</div>
 	</div>
 {/key}

@@ -46,7 +46,6 @@
 		const username = prompt("Please enter your name:");
 		const failedChecks = checkUsername(username);
 
-		// Cancelled
 		if (username === null) return;
 
 		if (failedChecks.length > 0) {
@@ -88,6 +87,7 @@
 	{/key}
 
 	<div class="relative m-auto flex h-full flex-col">
+		<!-- Create boxes -->
 		<div class="m-auto">
 			{#each [...range(0, height)] as y}
 				<div class="flex">
