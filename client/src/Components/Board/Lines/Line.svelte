@@ -45,7 +45,10 @@
 
 		// Save the affected boxes into the store
 		$gameState.affectedBoxes = chunked_claimed_boxes;
-		$gameState.currentPlayer = translateNumber(player, $game.current_player);
+		$gameState.currentPlayer = translateNumber(
+			player,
+			$game.current_player
+		);
 
 		// Update the UI for this line
 		updateClaimed();

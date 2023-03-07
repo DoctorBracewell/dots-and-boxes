@@ -1,0 +1,42 @@
+name: Verify Pull Request
+
+on:
+    pull_request: {}
+    workflow_dispatch:
+
+jobs:
+    prettier:
+        name: Code style
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: latest
+                  cache: npm
+            - run: npm ci
+            - run: npm run prettier
+
+    build-wasm:
+        name: Build WASM
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: latest
+            - uses: jetli/wasm-pack-action@v0.4
+              with:
+                  version: latest
+            - name: wasm-pack build
+              working-directory: ./client/wasm
+              run: |
+                  npm run build
+
+    build-site:
+        - uses: actions/checkout@v3
+        - name: Install and Build
+          working-directory: ./client
+          run: |
+              npm ci
+              npm run build

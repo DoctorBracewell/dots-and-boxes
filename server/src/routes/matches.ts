@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import Surreal from "surrealdb.js";
 import { basename } from "path";
+import Surreal from "surrealdb.js";
 
 interface Body {
 	username: string;
@@ -39,7 +39,6 @@ export function checkUsername(username: string) {
 	return checks.filter((check) => !check.check);
 }
 
-
 export function setupRoutes(server: FastifyInstance) {
 	server.post<{
 		Body: Body;
@@ -48,9 +47,10 @@ export function setupRoutes(server: FastifyInstance) {
 		const failedChecks = checkUsername(username);
 
 		if (failedChecks.length > 0) {
-			return response.status(400).send(`${failedChecks.map((c) => c.string).join(".\n")}`);
+			return response
+				.status(400)
+				.send(`${failedChecks.map((c) => c.string).join(".\n")}`);
 		}
-
 
 		if (!checkUsername(username))
 			return response.status(400).send("Invalid username length");

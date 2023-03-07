@@ -1,9 +1,10 @@
+import cors from "@fastify/cors";
+import * as dotenv from "dotenv";
 import Fastify from "fastify";
+import { readdir } from "fs/promises";
+
 import { PORT, RATE_LIMITS } from "./constants.js";
 import surrealInit from "./database.js";
-import * as dotenv from "dotenv";
-import { readdir } from "fs/promises";
-import cors from "@fastify/cors";
 
 // Load environment variables and connect to database
 await dotenv.config();

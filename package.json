@@ -1,0 +1,25 @@
+{
+	"name": "dots-and-boxes",
+	"scripts": {
+		"prettier": "npx prettier --check **/src",
+		"prettier:fix": "npx prettier --write **/src"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/DoctorBracewell/dots-and-boxes.git"
+	},
+	"author": "DrBracewell",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/DoctorBracewell/dots-and-boxes/issues"
+	},
+	"homepage": "https://brace.dev/dots-and-boxes",
+	"devDependencies": {
+		"@trivago/prettier-plugin-sort-imports": "^4.1.1",
+		"prettier": "^2.7.1",
+		"prettier-plugin-svelte": "^2.9.0",
+		"prettier-plugin-tailwindcss": "^0.2.4",
+		"typescript": "^4.9.5",
+		"vite": "^3.2.5"
+	}
+}
