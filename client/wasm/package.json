@@ -1,7 +1,11 @@
 {
 	"type": "module",
 	"scripts": {
-		"build": "wasm-pack build --target web",
+		"build": "wasm-pack build --target web --color always",
 		"postbuild": "node update_package_json.js"
+	},
+	"devDependencies": {
+		"prettier": "^2.8.3",
+		"prettier-plugin-tailwindcss": "^0.2.2"
 	}
 }

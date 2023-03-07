@@ -3,6 +3,6 @@
 	import Layout from "./Components/Layout.svelte";
 </script>
 
-<main class="h-screen box-border flex-1 flex font-body bg-white">
+<main class="font-body box-border flex h-screen flex-1 bg-white">
 	<Layout />
 </main>

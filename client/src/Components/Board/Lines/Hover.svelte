@@ -1,24 +1,33 @@
 <script lang="ts">
-	// Local Imports
-	import { game } from "../../../stores";
-	import { lineType, player, mapEnum, type LineType } from "../../../enums";
-
-	// Asset Imports
-	import vertical from "../../../imgs/game/hover/vertical.svg";
+	import {
+		type LineType,
+		lineType as lineTypeEnum,
+		player,
+		translateNumber,
+	} from "../../../enums";
 	import horizontal from "../../../imgs/game/hover/horizontal.svg";
+	import vertical from "../../../imgs/game/hover/vertical.svg";
+	import { game } from "../../../stores";
 
-	export let line: LineType;
+	export let lineType: LineType;
 
 	// Local Variables
-	$: active = $game.current_player === mapEnum(player, player.USER);
-	const isHorizontal = line === lineType.HORIZONTAL;
+	const isHorizontal = lineType === lineTypeEnum.HORIZONTAL;
+	let userTurn = false;
+
+	$: userTurn =
+		translateNumber(player, $game.current_player) !== player.COMPUTER;
+
+	// $: console.log($game.current_player);
 </script>
 
 <div
-	class="line {isHorizontal
-		? 'w-full h-8 -mt-4'
-		: 'h-full w-8 -ml-4'} z-40 selection:z-40 opacity-0 {active &&
-		'hover:opacity-100 cursor-pointer'}"
+	class="hover-line {isHorizontal
+		? '-mt-4 h-8 w-full'
+		: '-ml-4 h-full w-8'} z-40 opacity-0 selection:z-40 {translateNumber(
+		player,
+		$game.current_player
+	) !== player.COMPUTER && 'cursor-pointer hover:opacity-100'}"
 >
 	<img
 		src={isHorizontal ? horizontal : vertical}
@@ -28,7 +37,7 @@
 </div>
 
 <style>
-	.line {
+	.hover-line {
 		transition: 0.1s opacity;
 	}
 </style>
