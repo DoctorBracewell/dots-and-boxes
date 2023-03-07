@@ -14,7 +14,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: latest
-            - uses: jetli/wasm-pack-action@v0.4
+            - uses: jetli/wasm-pack-action@v0.4.0
               with:
                   version: latest
             - name: wasm-pack build
@@ -23,6 +23,7 @@ jobs:
                   npm run build
 
     build-site:
+        needs: build-wasm
         name: Build Site
         runs-on: ubuntu-latest
         steps:
