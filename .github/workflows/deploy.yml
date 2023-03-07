@@ -21,14 +21,7 @@ jobs:
               working-directory: ./client/wasm
               run: |
                   npm run build
-
-    build-site:
-        needs: build-wasm
-        name: Build Site
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: Install and Build
+            - name: vite build
               working-directory: ./client
               run: |
                   npm ci
