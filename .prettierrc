@@ -1,6 +1,7 @@
 {
 	"useTabs": true,
 	"tabWidth": 4,
+	"printWidth": 80,
 	"importOrder": ["^(.*)\\.svelte$", "^[./]"],
 	"importOrderSeparation": true,
 	"importOrderSortSpecifiers": true,
