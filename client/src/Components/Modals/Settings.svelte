@@ -3,7 +3,8 @@
 	import { game, settings } from "../../stores";
 
 	const handleClick = (event: Event) => {
-		$settings.difficulty = difficulty[(event.target as HTMLInputElement).value];
+		$settings.difficulty =
+			difficulty[(event.target as HTMLInputElement).value];
 	};
 </script>
 

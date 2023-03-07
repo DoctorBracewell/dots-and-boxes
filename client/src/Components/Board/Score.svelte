@@ -1,5 +1,4 @@
 <script lang="ts">
-	// Local Imports
 	import { mapEnum, player } from "../../enums";
 	import { game, settings } from "../../stores";
 </script>

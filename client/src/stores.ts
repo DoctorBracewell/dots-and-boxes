@@ -1,5 +1,3 @@
-// Local Imports
-// Module Imports
 import { get, writable } from "svelte/store";
 
 import init from "../wasm/pkg/wasm";

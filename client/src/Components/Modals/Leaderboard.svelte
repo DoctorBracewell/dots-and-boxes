@@ -53,15 +53,21 @@
 		class="flex max-h-[300px] w-full flex-col gap-3 overflow-y-scroll rounded-md border-2 border-black p-10"
 	>
 		{#each filteredMatches.sort((a, b) => b.result.user - a.result.user) as { username, result, board, game_time }, index}
-			<div class="m-auto flex h-fit w-full justify-center gap-5 align-middle">
+			<div
+				class="m-auto flex h-fit w-full justify-center gap-5 align-middle"
+			>
 				<span>
-					<span style="opacity: {result.user > result.computer ? '1' : '0'}"
-						>🏆</span
+					<span
+						style="opacity: {result.user > result.computer
+							? '1'
+							: '0'}">🏆</span
 					>
 					{username}
 				</span>│
 				<div class="inline-flex justify-center gap-1">
-					<span style="color: {$settings.colours.user}">{result.user}</span>
+					<span style="color: {$settings.colours.user}"
+						>{result.user}</span
+					>
 					<span>-</span>
 					<span style="color: {$settings.colours.computer}"
 						>{result.computer}</span

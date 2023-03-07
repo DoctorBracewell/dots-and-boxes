@@ -50,7 +50,9 @@
 
 		if (failedChecks.length > 0) {
 			alert(
-				`${failedChecks.map((c) => c.string).join(".\n")}.\n\nPlease try again!`
+				`${failedChecks
+					.map((c) => c.string)
+					.join(".\n")}.\n\nPlease try again!`
 			);
 			return handleGameEnd();
 		}
@@ -59,7 +61,9 @@
 			username,
 			result: {
 				user: await $game.count_boxes(mapEnum(player, player.USER)),
-				computer: await $game.count_boxes(mapEnum(player, player.COMPUTER)),
+				computer: await $game.count_boxes(
+					mapEnum(player, player.COMPUTER)
+				),
 			},
 			board: {
 				width: $game.width,

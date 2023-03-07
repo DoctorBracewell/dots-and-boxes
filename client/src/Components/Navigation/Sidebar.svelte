@@ -1,6 +1,4 @@
 <script lang="ts">
-	// Local Imports
-	// Component Imports
 	import Button from "./Button.svelte";
 
 	import { navigationEvent } from "../../enums";
