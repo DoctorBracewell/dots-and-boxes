@@ -33,8 +33,7 @@ jobs:
                   npm ci
                   npm run build
             - name: Deploy
-              working-directory: ./client
               uses: JamesIves/github-pages-deploy-action@v4
               with:
                   branch: gh-pages # The branch the action should deploy to.
-                  folder: ./dist # The folder the action should deploy.
+                  folder: ./client/dist # The folder the action should deploy.
