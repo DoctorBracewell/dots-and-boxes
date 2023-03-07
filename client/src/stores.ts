@@ -67,7 +67,7 @@ export const settings = writable<Settings>({
 });
 
 /*
- * Initialise settings with default difficulty
+ * Initialise settings with default medium difficulty
  */
 const settingsReference = get(settings);
 settingsReference.difficulty = difficulty.MEDIUM;
