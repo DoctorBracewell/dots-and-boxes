@@ -6,7 +6,7 @@ on:
 
 jobs:
     prettier:
-        name: Code style
+        name: Code Style
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
