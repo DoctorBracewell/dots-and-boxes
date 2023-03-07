@@ -9,7 +9,6 @@ jobs:
     build-wasm:
         name: Build WASM
         runs-on: ubuntu-latest
-        working-directory: ./client/wasm
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
@@ -19,21 +18,23 @@ jobs:
               with:
                   version: latest
             - name: wasm-pack build
+              working-directory: ./client/wasm
               run: |
                   npm run build
 
     build-site:
         name: Build Site
         runs-on: ubuntu-latest
-        working-directory: ./client
         steps:
             - uses: actions/checkout@v3
             - name: Install and Build
+              working-directory: ./client
               run: |
                   npm ci
                   npm run build
             - name: Deploy
               uses: JamesIves/github-pages-deploy-action@v4
+              working-directory: ./client
               with:
                   branch: gh-pages # The branch the action should deploy to.
                   folder: ./dist # The folder the action should deploy.
