@@ -313,7 +313,6 @@ impl Game {
             }
 
             // Generate a random valid move from the existing edges
-            log("unavoidable");
             let mut index = 0;
             let mut line_type = LineType::Horizontal;
 
