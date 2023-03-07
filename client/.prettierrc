@@ -1,0 +1,7 @@
+{
+	"useTabs": true,
+	"importOrder": ["^(.*)\\.svelte$", "^[./]"],
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true,
+	"plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"]
+}
