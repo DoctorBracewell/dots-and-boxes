@@ -1,6 +1,4 @@
 <script lang="ts">
-	// Component Imports
-	// Module Imports
 	import { Modals, openModal } from "svelte-modals";
 
 	import Game from "./Board/Game.svelte";

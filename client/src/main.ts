@@ -1,7 +1,3 @@
-/**
- * @author DrBracewell
- * @copyright 2023
- */
 import App from "./App.svelte";
 
 import "./app.css";
@@ -14,3 +10,8 @@ const app = new App({
 });
 
 export default app;
+
+/**
+ * @author DrBracewell
+ * @copyright 2023
+ */
