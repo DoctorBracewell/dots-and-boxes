@@ -14,27 +14,20 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: latest
-            - uses: jetli/wasm-pack-action@v0.4
+            - uses: jetli/wasm-pack-action@v0.4.0
               with:
                   version: latest
             - name: wasm-pack build
               working-directory: ./client/wasm
               run: |
                   npm run build
-
-    build-site:
-        name: Build Site
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: Install and Build
+            - name: vite build
               working-directory: ./client
               run: |
                   npm ci
                   npm run build
             - name: Deploy
-              working-directory: ./client
               uses: JamesIves/github-pages-deploy-action@v4
               with:
                   branch: gh-pages # The branch the action should deploy to.
-                  folder: ./dist # The folder the action should deploy.
+                  folder: ./client/dist # The folder the action should deploy.
