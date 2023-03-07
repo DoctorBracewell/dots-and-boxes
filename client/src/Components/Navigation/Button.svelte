@@ -1,17 +1,18 @@
 <script lang="ts">
-	export let label: string;
-
 	import { createEventDispatcher } from "svelte";
-	const dispatch = createEventDispatcher();
 
-	const handleClick = () => {
-		dispatch("navigationClick", {
-			label,
-		});
-	};
+	import type { NavigationEvent } from "../../enums";
+
+	// External Props
+	export let label: NavigationEvent;
+
+	// Dispatch a navigation event on click
+	const dispatch = createEventDispatcher();
+	const handleClick = () => dispatch("navigationClick", label);
 </script>
 
 <button
 	on:click={handleClick}
-	class="bg-none p-0 m-0 border-none sliding-underline">{label}</button
+	class="sliding-underline sliding-underline-medium m-0 border-none bg-none p-0"
+	>{label}</button
 >

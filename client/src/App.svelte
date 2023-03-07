@@ -1,7 +1,8 @@
 <script lang="ts">
+	// Component Imports
 	import Layout from "./Components/Layout.svelte";
 </script>
 
-<main class="w-screen h-screen flex-1 flex font-body bg-white">
+<main class="font-body box-border flex h-screen flex-1 bg-white">
 	<Layout />
 </main>

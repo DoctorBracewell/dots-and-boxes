@@ -3,6 +3,7 @@ import { PORT, RATE_LIMITS } from "./constants.js";
 import surrealInit from "./database.js";
 import * as dotenv from "dotenv";
 import { readdir } from "fs/promises";
+import cors from "@fastify/cors";
 
 // Load environment variables and connect to database
 await dotenv.config();
@@ -15,6 +16,11 @@ const fastify = Fastify({
 			target: "pino-pretty",
 		},
 	},
+});
+
+// Disable CORS
+await fastify.register(cors, {
+	origin: "*",
 });
 
 // Rate limit requests to 100 per minute

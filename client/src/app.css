@@ -1,20 +1,25 @@
-/* Write your global styles here, in PostCSS syntax */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @font-face {
 	font-family: "Virgil";
-	src: url("assets/fonts/virgil.woff2") format("woff2");
+	src: url("/fonts/virgil.woff2") format("woff2");
 }
 
 :root {
 	--white: theme("colors.white");
 	--black: theme("colors.black");
-	--red: theme("colors.red");
-	--blue: theme("colors.blue");
 	--grey: theme("colors.grey");
+	--slate-800: theme("colors.slate.800");
+	--slate-900: theme("colors.slate.900");
+}
+
+body,
+html {
+	margin: 0;
+	padding: 0;
+	font-display: fallback;
 }
 
 @layer components {
@@ -24,6 +29,14 @@
 		text-decoration: none;
 	}
 
+	.sliding-underline-small::before {
+		background-image: url("/svg/underline/small.svg");
+	}
+
+	.sliding-underline-medium::before {
+		background-image: url("/svg/underline/medium.svg");
+	}
+
 	.sliding-underline::before {
 		content: "";
 		position: absolute;
@@ -31,7 +44,6 @@
 		right: -5%;
 		height: 0.5em;
 		width: 110%;
-		background-image: url("assets/imgs/underline/small.svg");
 		background-size: 110% 0.5em;
 		background-position-y: 110%;
 		background-position-x: -0.4em;
@@ -55,28 +67,12 @@
 		width: 0%;
 	}
 
-	.bg-paper {
-		position: relative;
-		background: repeating-linear-gradient(
-			var(--white),
-			var(--white) 2em,
-			var(--grey) 2em,
-			var(--grey) 2.05em
-		);
-	}
-
-	.bg-paper::after {
-		content: "";
-		position: absolute;
-		width: 0.1em;
-		height: 100%;
-		background: var(--red);
-		left: 6em;
+	.sliding-underline-show:hover::after {
+		width: 100% !important;
 	}
 
 	.title {
-		@apply relative z-10;
-		text-decoration: none;
+		@apply relative z-10 no-underline;
 	}
 
 	.title::before {
@@ -86,14 +82,17 @@
 		bottom: -50%;
 		width: 120%;
 		height: 1em;
-		background-image: url("assets/imgs/underline/large.svg");
+		background-image: url("/svg/underline/large.svg");
 		background-size: 100% 1em;
 		background-repeat: no-repeat;
 		z-index: -2;
 	}
 
-	.box {
-		background-size: 100% 100%;
-		background-repeat: no-repeat;
+	.title-large::before {
+		background-image: url("/svg/underline/large.svg");
+	}
+
+	.title-medium::before {
+		background-image: url("/svg/underline/medium.svg");
 	}
 }
