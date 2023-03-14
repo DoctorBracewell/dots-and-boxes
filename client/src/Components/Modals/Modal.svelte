@@ -28,7 +28,7 @@
 			>
 			<h2 class="m-auto text-4xl font-bold">{event}</h2>
 
-			<div class="mt-5 min-h-[400px] w-full flex-grow">
+			<div class="mt-5 w-full flex-grow">
 				{#if event === navigationEvent.SETTINGS}
 					<Settings />
 				{:else if event === navigationEvent.LEADERBOARD}

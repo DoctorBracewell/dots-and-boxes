@@ -6,7 +6,7 @@ const config = {
 	theme: {
 		extend: {
 			colors: {
-				white: "#FCFCFC",
+				white: "#FFFFFF",
 				black: "#050505",
 				grey: "#EDEDED",
 			},

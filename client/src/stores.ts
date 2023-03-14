@@ -25,7 +25,7 @@ interface Settings {
  * Initialise and export the WASM module as a store
  */
 await init();
-export const game = writable<Game>(new Game(5, 5));
+export const game = writable<Game>(new Game(4, 4));
 
 interface GameState {
 	affectedBoxes: number[][];
