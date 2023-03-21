@@ -58,18 +58,18 @@
 			>
 				<span>
 					<span
-						style="opacity: {result.user > result.computer
-							? '1'
-							: '0'}">🏆</span
+						style:opacity={result.user > result.computer
+							? "1"
+							: "0"}>🏆</span
 					>
 					{username}
 				</span>│
 				<div class="inline-flex justify-center gap-1">
-					<span style="color: {$settings.colours.user}"
+					<span style:color={$settings.colours.user}
 						>{result.user}</span
 					>
 					<span>-</span>
-					<span style="color: {$settings.colours.computer}"
+					<span style:color={$settings.colours.computer}
 						>{result.computer}</span
 					>
 				</div>
@@ -80,7 +80,10 @@
 			</div>
 
 			{#if index !== matches.length - 1}
-				<div class="mx-auto h-[2px] w-full rounded-lg bg-black" />{/if}
+				<span
+					class="mx-auto min-h-[1.5px] w-full flex-grow-0 rounded-lg bg-black"
+				/>
+			{/if}
 		{/each}
 	</div>
 </div>

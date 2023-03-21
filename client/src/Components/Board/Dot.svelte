@@ -9,16 +9,10 @@
 </script>
 
 <div class="relative">
-	<div
-		class="flex"
-		style="
-			width: {average}em;
-			height: {average}em;
-		"
-	>
+	<div class="flex" style:width="{average}em" style:height="{average}em">
 		<img
 			class="absolute top-[-1em] left-[-1em] z-[45] h-[2em] w-[2em] select-none"
-			style="transform: rotate({random(360)}deg);"
+			style:transform="rotate({random(360)}deg)"
 			src={dotURL}
 			alt=""
 		/>
