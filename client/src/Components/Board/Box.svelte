@@ -27,10 +27,8 @@
 	<div class="relative">
 		<div
 			class="box relative flex"
-			style="
-			width: {average}rem;
-			height: {average}rem;
-		"
+			style:width="{average}em"
+			style:height="{average}em"
 		>
 			{#if claimedBy !== claimed.EMPTY}
 				<Background {claimedBy} />

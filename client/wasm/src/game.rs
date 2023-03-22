@@ -93,7 +93,7 @@ impl Game {
         }
 
         // Output graph in DOT format
-        // log(Dot::new(&graph));
+        log(Dot::new(&graph));
 
         Self {
             height,
@@ -130,6 +130,7 @@ impl Game {
     pub fn interact_edge(&mut self, index: usize, line_type: LineType) -> Vec<u32> {
         let edge = self.get_edge(index, line_type);
 
+        // If the edge is not claimed
         let game_boxes = if let None = edge {
             self.claim_edge(index, &line_type);
 
@@ -139,10 +140,12 @@ impl Game {
             // Remove edges from graph
             self.remove_edge(&game_box_indices, line_type);
 
+            // Only switch the player if a box was claimed (or if the board is full)
             if !any_box_claimed || self.board_full() {
                 self.switch_player();
             }
 
+            // Transform the affected boxes into an array of indices
             game_box_indices
                 .into_iter()
                 .flatten()
@@ -160,12 +163,14 @@ impl Game {
     }
 
     fn remove_edge(&mut self, indices: &GameBoxIndices, line_type: LineType) {
+        // Extract the correct node indicies from the affected boxes.
         let a = (indices[0][0] * self.width + indices[0][1]) + 1;
         let b = match indices.get(1) {
             Some(index) => (index[0] * self.width + index[1]) + 1,
             None => 0,
         };
 
+        // Calculate the edge between the two graph nodes
         let (node_one, node_two) = (NodeIndex::new(a), NodeIndex::new(b));
         let mut edge_to_remove = self.graph.find_edge(node_one, node_two).unwrap();
 
@@ -174,6 +179,7 @@ impl Game {
             && matches!(line_type, LineType::Horizontal)
             && self.graph.edges_connecting(node_one, node_two).count() > 1
         {
+            // Index manipulation for corner boxes
             if a == 1 {
                 EdgeIndex::new(edge_to_remove.index() - self.width * (self.height + 1))
             } else if a == self.width {
@@ -189,6 +195,7 @@ impl Game {
             edge_to_remove
         };
 
+        // Remove the correct edge
         self.graph.remove_edge(edge_to_remove);
     }
 
@@ -201,7 +208,7 @@ impl Game {
     }
 
     fn affected_boxes(&self, index: usize, line_type: &LineType) -> GameBoxIndices {
-        // Create a vector of the boxes to check (the ones that have been affected by the edge)
+        // Index manipulation to get the affected boxes, determined by the type of line
         let game_box_indices = match self.edge_type(index, line_type) {
             HorizontalNear => vec![[0, index % self.width]],
             HorizontalFar => vec![[self.height - 1, index % self.width]],
@@ -257,79 +264,17 @@ impl Game {
         // log(format!("tubes: {:?}", &tubes));
 
         if self.is_looney(&chains, &tubes) {
-            log("looney");
+            // log("looney");
             self.make_looney_move(chains)
         } else if chains.len() > 0 {
-            log("chains");
+            // log("chains");
             self.make_claiming_move(chains)
         } else if self.is_quasi_looney(&chains, &tubes) {
-            log("quasi looney");
+            // log("quasi looney");
             self.make_claiming_move(tubes)
         } else {
-            // self.switch_player();
-            // TurnInformation::new(0, LineType::Horizontal, Box::new([]))
-
-            let mut moves: Vec<(usize, LineType)> = vec![];
-
-            for i in 0..2 {
-                let line_type = match i {
-                    0 => LineType::Horizontal,
-                    _ => LineType::Vertical,
-                };
-
-                let line_count = match line_type {
-                    LineType::Horizontal => self.horizontal_edges.len(),
-                    LineType::Vertical => self.vertical_edges.len(),
-                };
-
-                for index in 0..line_count {
-                    if self.get_edge(index, line_type).is_none() {
-                        let affected_boxes = self.affected_boxes(index, &line_type);
-                        let affected_boxes_edges: Vec<usize> = affected_boxes
-                            .iter()
-                            .map(|[y, x]| {
-                                self.board[*y][*x]
-                                    .edge_count(&self.vertical_edges, &self.horizontal_edges)
-                            })
-                            .collect();
-
-                        if !affected_boxes_edges.iter().any(|&x| x == 2) {
-                            moves.push((index, line_type));
-                        }
-                    }
-                }
-            }
-
-            let mut rng = rand::thread_rng();
-
-            if moves.len() != 0 {
-                let (index, line_type) = *moves.choose(&mut rng).unwrap();
-
-                return TurnInformation::new(
-                    index,
-                    line_type,
-                    self.interact_edge(index, line_type).into(),
-                );
-            }
-
-            // Generate a random valid move from the existing edges
-            let mut index = 0;
-            let mut line_type = LineType::Horizontal;
-
-            while self.get_edge(index, line_type).is_some() {
-                index = rng.gen_range(0..(self.width * self.height));
-                // get random value from the LineType enum
-                line_type = match rng.gen_range(0..2) {
-                    0 => LineType::Horizontal,
-                    _ => LineType::Vertical,
-                };
-            }
-
-            TurnInformation::new(
-                index,
-                line_type,
-                self.interact_edge(index, line_type).into(),
-            )
+            // log("random");
+            self.make_random_move()
         }
     }
 
@@ -377,8 +322,10 @@ impl Game {
             (sole_chain[length - 1], sole_chain[length - 2])
         };
 
+        // Calculate index and line type of edge
         let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
 
+        // Return this information to the front end as well as update the board array
         TurnInformation::new(
             index,
             line_type,
@@ -387,16 +334,89 @@ impl Game {
     }
 
     fn make_claiming_move(&mut self, collections: BoxCollection) -> TurnInformation {
+        // Calculate the first two boxes in the shortest collection (tube or chain)
         let shortest_collection = collections
             .iter()
             .reduce(|acc, cur| if acc.len() > cur.len() { cur } else { acc })
             .unwrap();
 
-        // let length = shortest_chain.len();
-
         let (node_1, node_2) = (shortest_collection[0], shortest_collection[1]);
 
+        // Calculate index and line type of edge
         let (index, line_type) = self.graph_edge_to_board(node_1, node_2);
+
+        // Return this information to the front end as well as update the board array
+        TurnInformation::new(
+            index,
+            line_type,
+            self.interact_edge(index, line_type).into(),
+        )
+    }
+
+    fn make_random_move(&mut self) -> TurnInformation {
+        let mut moves: Vec<(usize, LineType)> = vec![];
+
+        // For horizontal and vertical lines
+        for i in 0..2 {
+            // Determine line type
+            let line_type = match i {
+                0 => LineType::Horizontal,
+                _ => LineType::Vertical,
+            };
+
+            // Determine number of lines
+            let line_count = match line_type {
+                LineType::Horizontal => self.horizontal_edges.len(),
+                LineType::Vertical => self.vertical_edges.len(),
+            };
+
+            // FOr each unclaimed line
+            for index in 0..line_count {
+                if self.get_edge(index, line_type).is_none() {
+                    // Calculate the boxes affected by this line
+                    let affected_boxes = self.affected_boxes(index, &line_type);
+                    let affected_boxes_edges: Vec<usize> = affected_boxes
+                        .iter()
+                        .map(|[y, x]| {
+                            self.board[*y][*x]
+                                .edge_count(&self.vertical_edges, &self.horizontal_edges)
+                        })
+                        .collect();
+
+                    // Only add to the vec if no boxes will be affected
+                    if !affected_boxes_edges.iter().any(|&x| x == 2) {
+                        moves.push((index, line_type));
+                    }
+                }
+            }
+        }
+
+        // Generate a random thread
+        let mut rng = rand::thread_rng();
+
+        // Pick a random valid move
+        if moves.len() != 0 {
+            let (index, line_type) = *moves.choose(&mut rng).unwrap();
+
+            return TurnInformation::new(
+                index,
+                line_type,
+                self.interact_edge(index, line_type).into(),
+            );
+        }
+
+        // Generate a random valid move from the existing edges
+        let mut index = 0;
+        let mut line_type = LineType::Horizontal;
+
+        while self.get_edge(index, line_type).is_some() {
+            index = rng.gen_range(0..(self.width * self.height));
+            // get random value from the LineType enum
+            line_type = match rng.gen_range(0..2) {
+                0 => LineType::Horizontal,
+                _ => LineType::Vertical,
+            };
+        }
 
         TurnInformation::new(
             index,
@@ -473,30 +493,36 @@ impl Game {
         chain: &mut Vec<NodeIndex>,
         visited_nodes: &Vec<NodeIndex>,
     ) {
+        // Get the neighbours of the current box
         let neighbors: Vec<NodeIndex> = self.graph.neighbors(current_node).collect();
         let length = neighbors.len();
 
+        // If it is the ground node, end the chain
         if let GraphNode::Ground = self.graph.node_weight(current_node).unwrap() {
             chain.push(current_node);
             return;
         }
 
+        // If there are more than two neighbours, end the chain
         if length > 2 {
             chain.push(current_node);
             return;
         }
 
+        // If the current box is a neighbour of a box that has already been visited, end and CLEAR the chain
         if neighbors.iter().any(|node| visited_nodes.contains(&node)) {
             chain.clear();
             return;
         }
 
+        // Otherwise add the current box to the chain
         chain.push(current_node);
 
         if length == 1 {
             return;
         }
 
+        // Continue with the neighbour that has not been visited yet
         let next_node = neighbors
             .iter()
             .filter(|node| !chain.contains(node))

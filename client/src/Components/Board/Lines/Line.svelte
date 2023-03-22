@@ -132,10 +132,8 @@
 	<div
 		class="line flex bg-transparent"
 		title="line"
-		style="
-		width: {average}em;
-		height: {average}em;
-	"
+		style:width="{average}em"
+		style:height="{average}em"
 		on:click={handleClick}
 		on:keypress={handleClick}
 	>

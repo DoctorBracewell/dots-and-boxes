@@ -16,6 +16,17 @@ pub enum LineType {
     Vertical,
 }
 
+pub enum EdgeType {
+    HorizontalNear,
+    HorizontalFar,
+    VerticalNear,
+    VerticalFar,
+    HorizontalShared,
+    VerticalShared,
+}
+
+pub type GameBoxIndices = Vec<[usize; 2]>;
+
 #[wasm_bindgen]
 pub struct TurnInformation(pub usize, pub LineType, Box<[u32]>);
 
@@ -31,14 +42,3 @@ impl TurnInformation {
         self.2.clone()
     }
 }
-
-pub enum EdgeType {
-    HorizontalNear,
-    HorizontalFar,
-    VerticalNear,
-    VerticalFar,
-    HorizontalShared,
-    VerticalShared,
-}
-
-pub type GameBoxIndices = Vec<[usize; 2]>;

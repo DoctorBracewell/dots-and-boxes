@@ -54,11 +54,15 @@ export const translateClaimed = (option: number | undefined) => {
 /**
  * Translate rust enum (sent as number via WASM) to typescript enum value
  */
-export const translateNumber = <T>(enumObject: T, index: any): T[keyof T] =>
+export const translateNumber = <T>(enumObject: T, index: number): T[keyof T] =>
 	Object.values(enumObject)[index];
 
 /**
  * Translate typescript enum value to rust enum (sent as number via WASM)
  */
-export const mapEnum = (enumObject: any, value: any): number =>
-	Object.values(enumObject).indexOf(value);
+export const mapEnum = (
+	enumObject: {
+		[key: string]: string;
+	},
+	value: string
+): number => Object.values(enumObject).indexOf(value);
