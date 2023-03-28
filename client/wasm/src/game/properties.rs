@@ -1,4 +1,3 @@
-use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

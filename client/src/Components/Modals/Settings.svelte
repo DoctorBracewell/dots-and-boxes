@@ -34,7 +34,7 @@
 
 				<div
 					class="m-auto h-[91%] w-[91%]"
-					style:backgroundColor={$settings.colours.user}
+					style:background-color={$settings.colours.user}
 				>
 					<input
 						class="h-full w-full rounded-md border-none bg-transparent opacity-0"
@@ -53,7 +53,7 @@
 
 				<div
 					class="m-auto h-[91%] w-[91%]"
-					style:backgroundColor={$settings.colours.computer}
+					style:background-color={$settings.colours.computer}
 				>
 					<input
 						class="h-full w-full rounded-md border-none bg-transparent opacity-0"

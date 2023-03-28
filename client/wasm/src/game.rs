@@ -1,23 +1,19 @@
 mod board;
 mod properties;
 
-use std::ops::AddAssign;
-
 use board::*;
-use petgraph::graph::{Edge, EdgeIndex, Node, NodeIndex};
+use petgraph::graph::{EdgeIndex, NodeIndex};
 use properties::{EdgeType::*, LineType::*, *};
 
 use js_sys::Uint32Array;
 use wasm_bindgen::prelude::*;
 
-use petgraph::dot::Dot;
-use petgraph::stable_graph::{GraphIndex, StableGraph, StableUnGraph};
-use petgraph::{Graph, Undirected};
+use petgraph::stable_graph::{StableGraph, StableUnGraph};
 
 use rand::seq::SliceRandom;
-use rand::thread_rng;
 use rand::Rng;
 
+#[cfg(debug_assertions)]
 use super::utils::log;
 
 type BoxCollection = Vec<Vec<NodeIndex>>;
@@ -93,7 +89,7 @@ impl Game {
         }
 
         // Output graph in DOT format
-        log(Dot::new(&graph));
+        // log(Dot::new(&graph));
 
         Self {
             height,
