@@ -9,8 +9,8 @@
 		<span class="mb-[0.9rem]">
 			<Button label={navigationEvent.SETTINGS} on:navigationClick />
 		</span>
-		<span>
+		<div class="sliding-underline sliding-underline-medium m-0 border-none bg-none p-0">
 			<a href="https://github.com/DoctorBracewell/dots-and-boxes">source<a/>
-		</span>
+		</div>
 	</div>
 </nav>
