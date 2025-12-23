@@ -1,5 +1,5 @@
-import { writeFile } from "fs/promises";
-import packageJson from "./pkg/package.json" assert { type: "json" };
+import { readFile, writeFile } from "fs/promises";
+const packageJson = JSON.parse(await readFile(new URL('./pkg/package.json', import.meta.url), 'utf-8'));
 
 packageJson.main = packageJson.module;
 
