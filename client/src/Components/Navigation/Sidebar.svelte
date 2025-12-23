@@ -5,11 +5,11 @@
 </script>
 
 <nav class="absolute right-[2.95em] top-[2.95em]">
-	<div class="flex flex-col text-right text-xl">
+	<div class="flex flex-col text-right text-xl items-end">
 		<span class="mb-[0.9rem]">
 			<Button label={navigationEvent.SETTINGS} on:navigationClick />
 		</span>
-		<div class="sliding-underline sliding-underline-medium m-0 border-none bg-none p-0">
+		<div class="sliding-underline sliding-underline-medium m-0 border-none bg-none p-0 w-fit">
 			<a href="https://github.com/DoctorBracewell/dots-and-boxes">source<a/>
 		</div>
 	</div>
