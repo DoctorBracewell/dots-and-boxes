@@ -10,9 +10,6 @@
 			<Button label={navigationEvent.SETTINGS} on:navigationClick />
 		</span>
 		<span>
-			<Button label={navigationEvent.LEADERBOARD} on:navigationClick />
-		</span>
-		<span>
 			<a href="https://github.com/DoctorBracewell/dots-and-boxes">source<a/>
 		</span>
 	</div>
