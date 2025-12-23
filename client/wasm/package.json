@@ -2,7 +2,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "wasm-pack build --target web --color always",
-		"postbuild": "node update_package_json.js"
+		"postbuild": "node update_package_json.mjs"
 	},
 	"devDependencies": {
 		"prettier": "^2.8.3",
