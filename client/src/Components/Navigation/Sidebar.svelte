@@ -12,5 +12,8 @@
 		<span>
 			<Button label={navigationEvent.LEADERBOARD} on:navigationClick />
 		</span>
+		<span>
+			<a href="https://github.com/DoctorBracewell/dots-and-boxes">source<a/>
+		</span>
 	</div>
 </nav>
